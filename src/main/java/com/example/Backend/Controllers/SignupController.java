@@ -1,5 +1,7 @@
-package com.example.Backend.Services;
+package com.example.Backend.Controllers;
 
+import com.example.Backend.Services.SignupRequest;
+import com.example.Backend.Services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -7,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping ("/accounts/signup")
-public class Signup {
+public class SignupController {
 
     @Autowired
     private UserService userService;
