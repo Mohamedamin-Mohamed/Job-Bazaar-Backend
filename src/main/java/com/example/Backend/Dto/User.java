@@ -1,4 +1,4 @@
-package com.example.Backend.Services;
+package com.example.Backend.Dto;
 /* this class is annotated to map to the DynamoDB table and includes the below fields email and hashedPassword
 So basically it represents the structure of the user data that is stored in DynamoDB */
 public class User {
