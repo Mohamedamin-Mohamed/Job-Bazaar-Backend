@@ -59,4 +59,26 @@ public class UserService {
         }
         return false;
     }
+
+    public boolean passwordMatches(String email, String password){
+
+        Map<String, AttributeValue> key = new HashMap<>();
+        key.put("email", AttributeValue.builder().s(email).build());
+        String hashedPassword = "";
+        GetItemRequest request = GetItemRequest.builder().tableName(tableName).key(key).build();
+        try{
+            GetItemResponse response = client.getItem(request);
+            Map<String, AttributeValue> item = response.item();
+            if(item != null && !item.isEmpty()){
+                AttributeValue hashedPasswordAttr = item.get("hashedPassword");
+                hashedPassword = hashedPasswordAttr.s();
+
+            }
+        }
+        catch (DynamoDbException exp){
+            System.out.println("Item couldn't be retrieved " + exp.getMessage());
+        }
+        //now compare the hashedPassword retrieved with the plainText from the user
+        return PasswordUtils.checkPassword(password, hashedPassword);
+    }
 }
