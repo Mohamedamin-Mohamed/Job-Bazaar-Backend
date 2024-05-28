@@ -1,6 +1,6 @@
 package com.example.Backend.Controllers;
 
-import com.example.Backend.Services.SignupRequest;
+import com.example.Backend.Dto.SignupRequest;
 import com.example.Backend.Services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
