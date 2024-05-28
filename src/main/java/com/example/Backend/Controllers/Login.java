@@ -34,11 +34,7 @@ public class Login {
             return new ResponseEntity<>("Incorrect Password", HttpStatus.UNAUTHORIZED);
         }
         //user doesn't exist so return incorrect email
-        return new ResponseEntity<>("Incorrect email address", HttpStatus.NOT_FOUND);
-    }
-    @GetMapping
-    public String test(){
-        return "Hey I see you";
+        return new ResponseEntity<>("Incorrect Email Address", HttpStatus.NOT_FOUND);
     }
 
 }
