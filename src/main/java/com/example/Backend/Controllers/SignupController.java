@@ -1,6 +1,6 @@
 package com.example.Backend.Controllers;
 
-import com.example.Backend.Dto.SignupRequest;
+import com.example.Backend.Dto.Request;
 import com.example.Backend.Services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,7 +15,7 @@ public class SignupController {
     private UserService userService;
 
     @PostMapping
-    public ResponseEntity<String> createUser(@RequestBody SignupRequest signupRequest){
+    public ResponseEntity<String> createUser(@RequestBody Request signupRequest){
         String email = signupRequest.getEmail();
         String password = signupRequest.getPass();
 

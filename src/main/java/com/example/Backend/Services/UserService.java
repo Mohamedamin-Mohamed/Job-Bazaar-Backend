@@ -1,8 +1,7 @@
 package com.example.Backend.Services;
 
-import org.springframework.context.annotation.Bean;
+import com.example.Backend.Utils.PasswordUtils;
 import org.springframework.stereotype.Service;
-import org.w3c.dom.Attr;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.*;

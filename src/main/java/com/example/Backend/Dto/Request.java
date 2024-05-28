@@ -1,9 +1,9 @@
 package com.example.Backend.Dto;
  /* This class is a DTO(Data Transfer Object) used to map the incoming JSON data from the http request to a Java object.
- So this class basically represents the data structure of the Signup request which contains the fields with name email
+ So this class basically represents the data structure of the Signup/Login request which contains the fields with name email
  and pass
   */
-public class SignupRequest {
+public class Request {
     private String email;
     private String pass;
 
