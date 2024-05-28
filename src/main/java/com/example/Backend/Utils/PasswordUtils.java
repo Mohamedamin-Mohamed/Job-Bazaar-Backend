@@ -1,4 +1,4 @@
-package com.example.Backend.Services;
+package com.example.Backend.Utils;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 
 public class PasswordUtils {
