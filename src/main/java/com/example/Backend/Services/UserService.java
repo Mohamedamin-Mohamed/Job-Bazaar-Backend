@@ -9,11 +9,13 @@ import software.amazon.awssdk.services.dynamodb.model.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 @Service
 public class UserService {
-    private DynamoDbClient client;
+    private final DynamoDbClient client;
     String tableName = "Users";
+    private static final Logger LOGGER = Logger.getLogger(UserService.class.getName());
 
     public UserService(){
         this.client = DynamoDbClient.builder().region(Region.US_EAST_2).build();
@@ -21,7 +23,9 @@ public class UserService {
     public boolean createUser(String email, String plainTextPassword){
         //check whether there is a user that exists with the above email
         boolean userExists = userExists(email);
+        LOGGER.info("User created: " + !userExists);
         if(userExists){
+            LOGGER.warning("User with email" + email + " already exists");
             return false;
         }
         //create the user because they don't exist
@@ -36,10 +40,11 @@ public class UserService {
             try {
                 //put the item into the table
                 PutItemResponse resp = client.putItem(req);
+                LOGGER.info("Created user with email " + email);
                 return true;
             }
             catch(DynamoDbException exp){
-                System.out.println("Something went wrong when inserting user into the table " + exp.statusCode() + exp.getMessage());
+                LOGGER.warning("User account couldn't be created " + exp.toString());
             }
         }
         //if we reach here it means an exception was thrown when inserting the user into the table
@@ -50,7 +55,7 @@ public class UserService {
         key.put("email", AttributeValue.builder().s(email).build());
         GetItemRequest req = GetItemRequest.builder().tableName(tableName).key(key).build();
         try {
-            //it return an object which can be checked if its null and if its empty
+            //it returns an object which can be checked if its null and if its empty
             GetItemResponse resp = client.getItem(req);
             Map<String, AttributeValue> item = resp.item();
 
@@ -58,7 +63,7 @@ public class UserService {
             return item != null && !item.isEmpty();
         }
         catch(DynamoDbException exp){
-            System.out.println("Exception " + exp.statusCode() + exp.getMessage());
+            LOGGER.warning(exp.toString());
         }
         return false;
     }
@@ -75,12 +80,13 @@ public class UserService {
             if(item != null && !item.isEmpty()){
                 AttributeValue hashedPasswordAttr = item.get("hashedPassword");
                 hashedPassword = hashedPasswordAttr.s();
+                LOGGER.info("Comparing plainText password from the user with the stored hashed password");
                 //now compare the hashedPassword retrieved with the plainText from the user
                 return PasswordUtils.checkPassword(password, hashedPassword);
             }
         }
         catch (DynamoDbException exp){
-            System.out.println("Item couldn't be retrieved " + exp.getMessage());
+            LOGGER.warning(exp.toString());
         }
         return false;
     }
