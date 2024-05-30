@@ -25,7 +25,7 @@ public class UserService {
         boolean userExists = userExists(email);
         LOGGER.info("User created: " + !userExists);
         if(userExists){
-            LOGGER.warning("User with email" + email + " already exists");
+            LOGGER.warning("User with email: " + email + " already exists");
             return false;
         }
         //create the user because they don't exist
@@ -90,4 +90,9 @@ public class UserService {
         }
         return false;
     }
+//    public boolean changePassword(String email){
+//        Map<String, AttributeValue> key = new HashMap<>();
+//        key.put("email", AttributeValue.builder().s(email).build());
+//
+//    }
 }
