@@ -8,16 +8,21 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.logging.Logger;
+
 @RestController
+@RequestMapping ("/accounts/login")
 public class Login {
     private String email;
     private String pass;
-
+    private static Logger LOGGER = Logger.getLogger(Login.class.getName());
     @Autowired
     private UserService userService;
 
-    @PostMapping("/accounts/login")
+    @PostMapping("/")
     public ResponseEntity<String> checkCredentials(@RequestBody Request loginRequest ) {
+        LOGGER.info("Login request received");
+
         String email = loginRequest.getEmail();
         String password = loginRequest.getPassword();
 
@@ -28,13 +33,24 @@ public class Login {
             //now check if the password matches the email
             boolean passwordMatch = userService.passwordMatches(email, password);
             if (passwordMatch) {
-                return new ResponseEntity<>("Credentials match", HttpStatus.OK);
+                return new ResponseEntity<>("Login Successful", HttpStatus.OK);
             }
             //password didn't match
             return new ResponseEntity<>("Incorrect Password", HttpStatus.UNAUTHORIZED);
         }
         //user doesn't exist so return incorrect email
         return new ResponseEntity<>("Incorrect Email Address", HttpStatus.NOT_FOUND);
+    }
+    @PostMapping ("/{email}/password-reset/")
+    public ResponseEntity<String> resetPassword(@PathVariable  String email){
+        LOGGER.info("Reset password request received");
+        boolean userExists = userService.userExists(email);
+        if (!userExists) {
+            return new ResponseEntity<>("We cannot find your email, please make an account first!", HttpStatus.NOT_FOUND);
+        }
+        else{
+            return new ResponseEntity<>("Email address found, reset your password", HttpStatus.OK);
+        }
     }
 
 }
