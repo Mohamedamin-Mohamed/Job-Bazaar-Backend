@@ -15,10 +15,14 @@ public class SecurityConfig {
     SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
                 .authorizeHttpRequests( auth -> {
-                    auth.requestMatchers("/login/google").permitAll();
+                    auth.requestMatchers("/oauth2/authorization/google").permitAll();
                     auth.anyRequest().authenticated();
-                })
-                .oauth2Login(Customizer.withDefaults())
+                }
+                )
+                .oauth2Login(oauth2Login -> oauth2Login
+                        .loginPage("/oauth2/authorization/google")
+                        .defaultSuccessUrl("http://localhost:3000/accounts", true)
+                )
                 .build();
     }
 }
