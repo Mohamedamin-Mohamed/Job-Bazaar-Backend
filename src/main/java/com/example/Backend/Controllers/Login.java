@@ -41,7 +41,7 @@ public class Login {
         //user doesn't exist so return incorrect email
         return new ResponseEntity<>("Incorrect Email Address", HttpStatus.NOT_FOUND);
     }
-    @PostMapping ("/{email}/email-lookup/")
+    @GetMapping ("/{email}/email-lookup/")
     public ResponseEntity<String> emailLookup(@PathVariable  String email){
         LOGGER.info("Email lookup request received");
         boolean userExists = userService.userExists(email);
