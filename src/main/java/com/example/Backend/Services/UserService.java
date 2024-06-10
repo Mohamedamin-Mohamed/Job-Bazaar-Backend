@@ -90,9 +90,22 @@ public class UserService {
         }
         return false;
     }
-//    public boolean changePassword(String email){
-//        Map<String, AttributeValue> key = new HashMap<>();
-//        key.put("email", AttributeValue.builder().s(email).build());
-//
-//    }
+    public boolean changePassword(String email, String password){
+        //hash the users password
+        String hashedPassword = PasswordUtils.hashPassword(password);
+
+        Map<String, AttributeValue> key = new HashMap<>();
+        key.put("email", AttributeValue.builder().s(email).build());
+        key.put("hashedPassword", AttributeValue.builder().s(hashedPassword).build());
+        PutItemRequest req = PutItemRequest.builder().tableName(tableName).item(key).build();
+        try{
+            PutItemResponse resp = client.putItem(req);
+            LOGGER.info("Changed password for user " + email);
+            return true;
+        }
+        catch(DynamoDbException exp){
+            LOGGER.warning(exp.toString());
+        }
+        return false;
+    }
 }

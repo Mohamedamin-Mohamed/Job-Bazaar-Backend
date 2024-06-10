@@ -16,9 +16,9 @@ public class Login {
     private String email;
     private String pass;
     private static Logger LOGGER = Logger.getLogger(Login.class.getName());
+
     @Autowired
     private UserService userService;
-
     @PostMapping("/")
     public ResponseEntity<String> checkCredentials(@RequestBody Request loginRequest ) {
         LOGGER.info("Login request received");
@@ -41,15 +41,28 @@ public class Login {
         //user doesn't exist so return incorrect email
         return new ResponseEntity<>("Incorrect Email Address", HttpStatus.NOT_FOUND);
     }
-    @PostMapping ("/{email}/password-reset/")
-    public ResponseEntity<String> resetPassword(@PathVariable  String email){
-        LOGGER.info("Reset password request received");
+    @PostMapping ("/{email}/email-lookup/")
+    public ResponseEntity<String> emailLookup(@PathVariable  String email){
+        LOGGER.info("Email lookup request received");
         boolean userExists = userService.userExists(email);
         if (!userExists) {
             return new ResponseEntity<>("We cannot find your email, please make an account first!", HttpStatus.NOT_FOUND);
         }
         else{
             return new ResponseEntity<>("Email address found, reset your password", HttpStatus.OK);
+        }
+    }
+    @PostMapping ("/password-reset/")
+    public ResponseEntity<String> resetPassword(@RequestBody Request passwordResetRequest){
+        LOGGER.info("Password Reset request received");
+        String email = passwordResetRequest.getEmail();
+        String password = passwordResetRequest.getPassword();
+        boolean passwordChanged = userService.changePassword(email, password);
+        if(passwordChanged){
+            return new ResponseEntity<>("Password Reset Successful, redirecting you to Login", HttpStatus.OK);
+        }
+        else{
+            return new ResponseEntity<>("Password Reset Failed", HttpStatus.UNAUTHORIZED);
         }
     }
 
