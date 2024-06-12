@@ -5,7 +5,7 @@ package com.example.Backend.Dto;
   */
 public class Request {
     private String email;
-    private String pass;
+    private String password;
 
     public String getEmail() {
         return email;
@@ -15,11 +15,11 @@ public class Request {
         this.email = email;
     }
 
-    public String getPass() {
-        return pass;
+    public String getPassword() {
+        return password;
     }
 
-    public void setPass(String pass) {
-        this.pass = pass;
+    public void setPass(String password) {
+        this.password = password;
     }
 }
