@@ -62,7 +62,7 @@ public class Login {
             return new ResponseEntity<>("Password Reset Successful, redirecting you to Login", HttpStatus.OK);
         }
         else{
-            return new ResponseEntity<>("Password Reset Failed", HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>("User Account not found, Log in", HttpStatus.UNAUTHORIZED);
         }
     }
 
