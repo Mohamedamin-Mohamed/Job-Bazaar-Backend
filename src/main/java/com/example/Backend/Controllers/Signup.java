@@ -1,6 +1,6 @@
 package com.example.Backend.Controllers;
 
-import com.example.Backend.Dto.Request;
+import com.example.Backend.Dto.RequestDto;
 import com.example.Backend.Services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,17 +13,18 @@ import java.util.logging.Logger;
 public class Signup {
     private static final Logger LOGGER = Logger.getLogger(Signup.class.getName());
 
+    private final UserService userService;
+
     @Autowired
-    private UserService userService;
+    public Signup(UserService userService){
+        this.userService = userService;
+    }
 
     @PostMapping("/accounts/signup")
-    public ResponseEntity<String> createUser(@RequestBody Request signupRequest){
+    public ResponseEntity<String> createUser(@RequestBody RequestDto signupRequest){
         LOGGER.info("Signup request received");
 
-        String email = signupRequest.getEmail();
-        String password = signupRequest.getPassword();
-
-        boolean isUserCreated = userService.createUser(email, password);
+        boolean isUserCreated = userService.createUser(signupRequest);
         if(isUserCreated){
             return new ResponseEntity<>("Account created successfully, Login to your account", HttpStatus.CREATED);
         }
