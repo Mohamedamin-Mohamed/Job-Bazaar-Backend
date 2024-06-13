@@ -3,7 +3,7 @@ package com.example.Backend.Dto;
  So this class basically represents the data structure of the Signup/Login request which contains the fields with name email
  and pass
   */
-public class Request {
+public class RequestDto {
     private String email;
     private String password;
 
