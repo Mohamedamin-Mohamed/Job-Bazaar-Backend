@@ -1,9 +1,9 @@
-package com.example.Backend.Repositories;
+package com.JobBazaar.Backend.Repositories;
 
-import com.example.Backend.Dto.RequestDto;
-import com.example.Backend.Dto.UserDto;
-import com.example.Backend.Mappers.DynamoDbItemMapper;
-import com.example.Backend.Utils.PasswordUtils;
+import com.JobBazaar.Backend.Dto.RequestDto;
+import com.JobBazaar.Backend.Dto.UserDto;
+import com.JobBazaar.Backend.Mappers.DynamoDbItemMapper;
+import com.JobBazaar.Backend.Utils.PasswordUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
