@@ -44,8 +44,8 @@ public class UserService {
         LOGGER.info("User exists request received");
             return userRepository.userExists(request);
         }
-    public boolean passwordMatches(String email, String password){
-        return userRepository.passwordMatches(email, password);
+    public boolean passwordMatches(RequestDto loginRequest){
+        return userRepository.passwordMatches(loginRequest);
     }
 
     public boolean updateUser(RequestDto request){

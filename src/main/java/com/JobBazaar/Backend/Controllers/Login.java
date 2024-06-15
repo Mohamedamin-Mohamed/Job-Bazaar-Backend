@@ -12,8 +12,7 @@ import java.util.logging.Logger;
 @RestController
 @RequestMapping ("/accounts/login")
 public class Login {
-    private String email;
-    private String pass;
+
     private static Logger LOGGER = Logger.getLogger(Login.class.getName());
 
     private final UserService userService;
@@ -32,7 +31,7 @@ public class Login {
         //if true check if the password matches with the users email
         if (userExists) {
             //now check if the password matches the email
-            boolean passwordMatch = userService.passwordMatches(email, loginRequest.getPassword());
+            boolean passwordMatch = userService.passwordMatches(loginRequest);
             if (passwordMatch) {
                 return new ResponseEntity<>("Login Successful", HttpStatus.OK);
             }

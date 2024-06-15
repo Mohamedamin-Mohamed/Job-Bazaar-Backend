@@ -65,11 +65,11 @@ public class UserRepository {
         }
         return false;
     }
-    public boolean passwordMatches(String email, String password) {
-        LOGGER.info("Checking password for user with email " + email);
+    public boolean passwordMatches(RequestDto requestDto) {
+        LOGGER.info("Checking password for user with email " + requestDto.getEmail());
 
         Map<String, AttributeValue> key = new HashMap<>();
-        key.put("email", AttributeValue.builder().s(email).build());
+        key.put("email", AttributeValue.builder().s(requestDto.getEmail()).build());
         String hashedPassword;
 
         GetItemRequest request = GetItemRequest.builder().tableName(TABLE_NAME).key(key).build();
@@ -82,7 +82,7 @@ public class UserRepository {
                 LOGGER.info("Comparing plainText password from the user with the stored hashed password");
 
                 //now compare the hashedPassword retrieved with the plainText from the user
-                return passwordUtils.checkPassword(password, hashedPassword);
+                return passwordUtils.checkPassword(requestDto.getPassword(), hashedPassword);
             }
         }
         catch (DynamoDbException exp){

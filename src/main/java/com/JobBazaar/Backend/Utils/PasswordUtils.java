@@ -4,9 +4,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class PasswordUtils {
-    public PasswordUtils() {
 
-    }
     //hash a plaintext password
     public String hashPassword(String plainTextPassword){
         return BCrypt.hashpw(plainTextPassword, BCrypt.gensalt());
