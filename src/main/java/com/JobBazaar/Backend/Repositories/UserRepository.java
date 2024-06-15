@@ -1,9 +1,9 @@
-package com.example.Backend.Repositories;
+package com.JobBazaar.Backend.Repositories;
 
-import com.example.Backend.Dto.RequestDto;
-import com.example.Backend.Dto.UserDto;
-import com.example.Backend.Mappers.DynamoDbItemMapper;
-import com.example.Backend.Utils.PasswordUtils;
+import com.JobBazaar.Backend.Dto.RequestDto;
+import com.JobBazaar.Backend.Dto.UserDto;
+import com.JobBazaar.Backend.Mappers.DynamoDbItemMapper;
+import com.JobBazaar.Backend.Utils.PasswordUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
