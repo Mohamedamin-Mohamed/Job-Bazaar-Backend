@@ -1,7 +1,7 @@
-package com.example.Backend.Controllers;
+package com.JobBazaar.Backend.Controllers;
 
-import com.example.Backend.Dto.RequestDto;
-import com.example.Backend.Services.UserService;
+import com.JobBazaar.Backend.Dto.RequestDto;
+import com.JobBazaar.Backend.Services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

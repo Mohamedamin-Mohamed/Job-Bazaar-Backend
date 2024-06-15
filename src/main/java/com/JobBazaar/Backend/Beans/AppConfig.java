@@ -1,9 +1,9 @@
-package com.example.Backend.Beans;
+package com.JobBazaar.Backend.Beans;
 
-import com.example.Backend.Mappers.DynamoDbItemMapper;
-import com.example.Backend.Repositories.UserRepository;
-import com.example.Backend.Services.UserService;
-import com.example.Backend.Utils.PasswordUtils;
+import com.JobBazaar.Backend.Services.UserService;
+import com.JobBazaar.Backend.Mappers.DynamoDbItemMapper;
+import com.JobBazaar.Backend.Repositories.UserRepository;
+import com.JobBazaar.Backend.Utils.PasswordUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;

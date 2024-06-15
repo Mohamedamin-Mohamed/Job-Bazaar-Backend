@@ -1,7 +1,6 @@
-package com.example.Backend.Mappers;
+package com.JobBazaar.Backend.Mappers;
 
-import com.example.Backend.Dto.UserDto;
-import org.springframework.web.bind.annotation.Mapping;
+import com.JobBazaar.Backend.Dto.UserDto;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
 import java.util.HashMap;
