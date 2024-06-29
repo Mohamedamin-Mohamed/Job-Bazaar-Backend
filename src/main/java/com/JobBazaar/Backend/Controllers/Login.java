@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.logging.Logger;
 
 @RestController
-@RequestMapping ("/accounts/login")
+@RequestMapping("/accounts/login")
 public class Login {
 
     private static Logger LOGGER = Logger.getLogger(Login.class.getName());
@@ -18,11 +18,12 @@ public class Login {
     private final UserService userService;
 
     @Autowired
-    public Login(UserService userService){
+    public Login(UserService userService) {
         this.userService = userService;
     }
+
     @PostMapping("/")
-    public ResponseEntity<String> checkCredentials(@RequestBody RequestDto loginRequest ) {
+    public ResponseEntity<String> checkCredentials(@RequestBody RequestDto loginRequest) {
         LOGGER.info("Login request received");
 
         //first check if there is a user with the above email
@@ -41,8 +42,9 @@ public class Login {
         //user doesn't exist so return incorrect email
         return new ResponseEntity<>("Incorrect Email Address", HttpStatus.NOT_FOUND);
     }
-    @GetMapping ("/{email}/email-lookup/")
-    public ResponseEntity<String> emailLookup(@PathVariable  String email){
+
+    @GetMapping("/{email}/email-lookup/")
+    public ResponseEntity<String> emailLookup(@PathVariable String email) {
         LOGGER.info("Email lookup request received");
 
         //just make an object because method needs an object of type RequestDto
@@ -50,25 +52,22 @@ public class Login {
         requestDto.setEmail(email);
         requestDto.setPass("");
         boolean userExists = userService.userExists(requestDto);
-        System.out.println(userExists);
         if (!userExists) {
             return new ResponseEntity<>("We cannot find your email, please make an account first!", HttpStatus.NOT_FOUND);
-        }
-        else{
+        } else {
             return new ResponseEntity<>("Email address found, reset your password", HttpStatus.OK);
         }
     }
-    @PostMapping ("/password-reset/")
-    public ResponseEntity<String> resetPassword(@RequestBody RequestDto passwordResetRequest){
+
+    @PostMapping("/password-reset/")
+    public ResponseEntity<String> resetPassword(@RequestBody RequestDto passwordResetRequest) {
         LOGGER.info("Password Reset request received");
 
         boolean passwordChanged = userService.updateUser(passwordResetRequest);
-        if(passwordChanged){
+        if (passwordChanged) {
             return new ResponseEntity<>("Password Reset Successful, redirecting you to Login", HttpStatus.OK);
-        }
-        else{
-            return new ResponseEntity<>("User Account not found, Log in", HttpStatus.UNAUTHORIZED);
+        } else {
+            return new ResponseEntity<>("User Account not found, Sign up", HttpStatus.UNAUTHORIZED);
         }
     }
-
 }
