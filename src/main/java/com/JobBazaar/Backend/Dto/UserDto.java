@@ -5,9 +5,27 @@ So basically it represents the structure of the user data that is stored in Dyna
 public class UserDto {
     private String email;
     private String hashedPassword;
+    private String firstName;
+    private String lastName;
 
     public String getEmail() {
         return email;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
     public void setEmail(String email) {
