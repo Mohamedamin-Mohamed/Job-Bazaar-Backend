@@ -38,8 +38,8 @@ public class BackendApplication implements WebMvcConfigurer {
 		return "home";
 	}
 
-//	@GetMapping("/test")
-//		public String heyThere(){
-//			return "Hey there";
-		//}
+	@GetMapping("/test")
+		public String heyThere(){
+			return "Hey there";
+		}
 }
