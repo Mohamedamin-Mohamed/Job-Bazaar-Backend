@@ -1,6 +1,6 @@
 package com.JobBazaar.Backend.Controllers;
 
-import com.JobBazaar.Backend.Dto.RequestDto;
+import com.JobBazaar.Backend.Dto.SignupRequestDto;
 import com.JobBazaar.Backend.Services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,11 +21,13 @@ public class Signup {
     }
 
     @PostMapping("/accounts/signup")
-    public ResponseEntity<String> createUser(@RequestBody RequestDto signupRequest){
+    public ResponseEntity<String> createUser(@RequestBody SignupRequestDto signupRequest){
         LOGGER.info("Signup request received");
 
         boolean isUserCreated = userService.createUser(signupRequest);
-        if(isUserCreated){
+        boolean isSubscriberAddedToTopic = userService.subscriberAddedToTopic(signupRequest, "UserAccountNotifications");
+
+        if(isUserCreated && isSubscriberAddedToTopic){
             return new ResponseEntity<>("Account created successfully, Login to your account", HttpStatus.CREATED);
         }
         else{
