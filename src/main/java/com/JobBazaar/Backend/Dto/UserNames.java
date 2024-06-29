@@ -1,6 +1,6 @@
 package com.JobBazaar.Backend.Dto;
 
-public class Person {
+public class UserNames {
     private String firstName;
     private String lastName;
 
@@ -12,7 +12,7 @@ public class Person {
         return lastName;
     }
     public void setFirstName(String firstName) {
-
+        this.firstName = firstName;
     }
     public void setLastName(String lastName) {
         this.lastName = lastName;
