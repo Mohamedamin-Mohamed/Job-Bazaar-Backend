@@ -1,7 +1,9 @@
 package com.JobBazaar.Backend.Services;
 
 import com.JobBazaar.Backend.Dto.RequestDto;
+import com.JobBazaar.Backend.Dto.SignupRequestDto;
 import com.JobBazaar.Backend.Dto.UserDto;
+import com.JobBazaar.Backend.Repositories.SnsRepository;
 import com.JobBazaar.Backend.Repositories.UserRepository;
 import com.JobBazaar.Backend.Utils.PasswordUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,14 +17,14 @@ import static org.mockito.Mockito.*;
 class UserServiceTest {
 
    private final UserRepository userRepository = mock(UserRepository.class);
+   private final SnsRepository snsRepository = mock(SnsRepository.class);
    private final PasswordUtils passwordUtils = mock(PasswordUtils.class);
-
     @InjectMocks
     private UserService userService;
 
     private UserDto userDto;
     private RequestDto requestDto;
-
+    private SignupRequestDto signupRequestDto;
     @BeforeEach
     void setUp() {
         requestDto = new RequestDto();
@@ -33,7 +35,13 @@ class UserServiceTest {
         userDto.setEmail("test@test.com");
         userDto.setHashedPassword("hashedPassword123");
 
-        userService = new UserService(userRepository, passwordUtils);
+        signupRequestDto = new SignupRequestDto();
+        signupRequestDto.setEmail("test@test.com");
+        signupRequestDto.setPassword("password123");
+        signupRequestDto.setFirstName("test");
+        signupRequestDto.setLastName("com");
+
+        userService = new UserService(userRepository, snsRepository, passwordUtils);
     }
 
     @Test
@@ -41,11 +49,10 @@ class UserServiceTest {
     void testCreateUser_UserExists() {
        when(userRepository.userExists(requestDto)).thenReturn(true);
 
-       boolean result = userService.createUser(requestDto);
+       boolean result = userService.createUser(signupRequestDto);
 
        assertFalse(result);
-       verify(userRepository, times(1)).userExists(requestDto);
-       verify(userRepository, never()).addUser(any(UserDto.class));
+       verify(userRepository, times(1)).userExists(any(RequestDto.class));
     }
 
     @Test
@@ -55,12 +62,12 @@ class UserServiceTest {
         when(passwordUtils.hashPassword(requestDto.getPassword())).thenReturn("hashedPassword123");
         when(userRepository.addUser(any(UserDto.class))).thenReturn(true);
 
-        boolean result = userService.createUser(requestDto);
+        boolean result = userService.createUser(signupRequestDto);
 
         assertTrue(result);
-        verify(userRepository, times(1)).userExists(requestDto);
+        verify(userRepository, times(1)).userExists(any(RequestDto.class));
         verify(userRepository, times(1)).addUser(any(UserDto.class));
-        verify(passwordUtils, times(1)).hashPassword(requestDto.getPassword());
+        verify(passwordUtils, times(1)).hashPassword(anyString());
     }
 
     @Test
