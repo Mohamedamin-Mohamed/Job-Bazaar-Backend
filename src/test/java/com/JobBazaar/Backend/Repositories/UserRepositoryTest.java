@@ -23,16 +23,16 @@ import static org.mockito.Mockito.*;
 
 class UserRepositoryTest {
     @Mock
-    DynamoDbClient client;
+    private DynamoDbClient client;
 
     @Mock
-    DynamoDbItemMapper dynamoDbItemMapper;
+    private DynamoDbItemMapper dynamoDbItemMapper;
 
     @Mock
-    PasswordUtils passwordUtils;
+    private PasswordUtils passwordUtils;
 
     @InjectMocks
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
     private UserDto userDto;
     private RequestDto requestDto;
