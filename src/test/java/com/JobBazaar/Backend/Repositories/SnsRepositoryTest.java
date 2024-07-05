@@ -1,6 +1,5 @@
 package com.JobBazaar.Backend.Repositories;
 
-import com.JobBazaar.Backend.Beans.AppConfig;
 import com.JobBazaar.Backend.Dto.SignupRequestDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -8,7 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
-import software.amazon.awssdk.core.client.builder.SdkDefaultClientBuilder;
+import org.springframework.web.server.ResponseStatusException;
 import software.amazon.awssdk.http.SdkHttpResponse;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
@@ -20,11 +19,8 @@ import software.amazon.awssdk.services.dynamodb.model.PutItemResponse;
 import software.amazon.awssdk.services.sns.SnsClient;
 import software.amazon.awssdk.services.sns.model.SubscribeRequest;
 import software.amazon.awssdk.services.sns.model.SubscribeResponse;
-
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -36,12 +32,13 @@ class SnsRepositoryTest {
     @Mock
     DynamoDbClient client;
 
+    @InjectMocks
     @Spy
     SnsRepository snsRepository;
 
     @BeforeEach
     void setUp() {
-        snsRepository = new SnsRepository(client, snsClient);
+        MockitoAnnotations.openMocks(this);
     }
 
     @Test
@@ -85,10 +82,8 @@ class SnsRepositoryTest {
 
     @Test
     void getTopicArnFailed() {
-        String topic = "topic";
-
         when(client.getItem(any(GetItemRequest.class))).thenReturn(GetItemResponse.builder().item(new HashMap<>()).build());
-        String result = snsRepository.getTopicArn(topic);
+        String result = snsRepository.getTopicArn("");
 
         assertNull(result);
         verify(client).getItem(any(GetItemRequest.class));
@@ -100,16 +95,18 @@ class SnsRepositoryTest {
 
         when(client.getItem(any(GetItemRequest.class))).thenThrow(DynamoDbException.class);
         assertThrows(DynamoDbException.class, () -> snsRepository.getTopicArn(topic));
+        verify(client).getItem(any(GetItemRequest.class));
     }
 
     @Test
-    void addSubscriberToTopicSuccessful() {
+    void addSubscriberToTopic_Successful() {
         SignupRequestDto signupRequestDto = new SignupRequestDto();
         signupRequestDto.setEmail("test@test.com");
         String topic = "topic";
 
-        doReturn(topic).when(snsRepository).getTopicArn(any());
-        SdkHttpResponse httpResponse = (SdkHttpResponse) SdkHttpResponse.builder().statusCode(200);
+        doReturn(topic).when(snsRepository).getTopicArn(topic);
+
+        SdkHttpResponse httpResponse = SdkHttpResponse.builder().statusCode(200).build();
         SubscribeResponse response = (SubscribeResponse) SubscribeResponse.builder().sdkHttpResponse(httpResponse).build();
 
         when(snsClient.subscribe(any(SubscribeRequest.class))).thenReturn(response);
@@ -118,5 +115,33 @@ class SnsRepositoryTest {
 
         assertTrue(result);
         verify(snsClient).subscribe(any(SubscribeRequest.class));
+        verify(snsClient).close();
     }
+
+    @Test
+    void addSubscriberToTopic_InvalidTopic(){
+        doReturn(null).when(snsRepository).getTopicArn(anyString());
+
+        boolean result = snsRepository.addSubscriberToTopic(new SignupRequestDto(), "");
+
+        assertFalse(result);
+    }
+
+    @Test
+    void addSubscriberToTopic_ExceptionThrown(){
+        SignupRequestDto signupRequestDto = new SignupRequestDto();
+        signupRequestDto.setEmail("test@test.com");
+        String topic = "topic";
+
+        doReturn(topic).when(snsRepository).getTopicArn(anyString());
+
+        SdkHttpResponse httpResponse = SdkHttpResponse.builder().statusCode(404).build();
+        SubscribeResponse response = (SubscribeResponse) SubscribeResponse.builder().sdkHttpResponse(httpResponse).build();
+
+        when(snsClient.subscribe(any(SubscribeRequest.class))).thenReturn(response);
+
+        assertThrows(ResponseStatusException.class, ()-> snsRepository.addSubscriberToTopic(signupRequestDto, topic));
+        verify(snsClient).subscribe(any(SubscribeRequest.class));
+    }
+
 }
