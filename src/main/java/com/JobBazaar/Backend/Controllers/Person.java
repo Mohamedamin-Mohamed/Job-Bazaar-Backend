@@ -15,7 +15,7 @@ import java.util.logging.Logger;
 @RequestMapping("/api")
 public class Person {
     private static final Logger LOGGER = Logger.getLogger(Person.class.getName());
-    private UserService userService;
+    private final UserService userService;
 
     @Autowired
     public Person(UserService userService) {
@@ -26,7 +26,7 @@ public class Person {
         LOGGER.info("Getting person with email: " + email);
         UserNames names = userService.getUsersInfo(email);
         if(names != null) {
-            LOGGER.info("Found person with email: " + names.getFirstName() + names.getLastName());
+            LOGGER.info("Found: " + names.getFirstName() + names.getLastName());
             return ResponseEntity.ok(names);
         }
         return ResponseEntity.notFound().build();
