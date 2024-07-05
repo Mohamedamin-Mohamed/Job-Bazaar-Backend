@@ -48,13 +48,11 @@ public class UserRepository {
         try {
             PutItemResponse response = client.putItem(request);
             LOGGER.info("Created user with email " + user.getEmail());
-            return true;
-        } catch (DynamoDbException e) {
-            LOGGER.warning("User account couldn't be created " + e.toString());
+            return response.sdkHttpResponse().isSuccessful();
+        } catch (DynamoDbException exp) {
+            LOGGER.warning("User account couldn't be created " + exp);
+            throw exp;
         }
-
-        //if we reach here it means an exception was thrown when inserting the user into the table
-        return false;
     }
 
     public boolean updateUser(RequestDto requestDto) {
@@ -72,8 +70,8 @@ public class UserRepository {
             return true;
         } catch (DynamoDbException exp) {
             LOGGER.warning(exp.toString());
+            throw exp;
         }
-        return false;
     }
 
     public boolean passwordMatches(RequestDto requestDto) {
@@ -95,10 +93,11 @@ public class UserRepository {
                 //now compare the hashedPassword retrieved with the plainText from the user
                 return passwordUtils.checkPassword(requestDto.getPassword(), hashedPassword);
             }
+            else return false;
         } catch (DynamoDbException exp) {
             LOGGER.warning(exp.toString());
+            throw exp;
         }
-        return false;
     }
 
     public boolean userExists(RequestDto requestDto) {
@@ -114,8 +113,8 @@ public class UserRepository {
             return item != null && !item.isEmpty();
         } catch (DynamoDbException exp) {
             LOGGER.warning(exp.toString());
+            throw exp;
         }
-        return false;
     }
 
     public UserNames getUsersInfo(String email) {
@@ -127,20 +126,20 @@ public class UserRepository {
             //it returns an object which can be checked if its null and if its empty
             GetItemResponse resp = client.getItem(req);
             Map<String, AttributeValue> item = resp.item();
-            UserNames person = new UserNames();
+            UserNames person = null;
             if (item != null && !item.isEmpty()) {
+                person = new UserNames();
                 String firstName = item.get("firstName").s();
                 String lastName = item.get("lastName").s();
 
                 person.setFirstName(firstName);
                 person.setLastName(lastName);
             }
-            LOGGER.info(item.toString());
             return person;
         } catch (DynamoDbException exp) {
             LOGGER.warning(exp.toString());
+            throw exp;
         }
-        return null;
     }
 
 

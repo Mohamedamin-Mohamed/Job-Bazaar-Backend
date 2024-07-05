@@ -36,6 +36,7 @@ class SignupTest {
     @DisplayName("Test to check if the users account has been created successfully")
     void testCreateUser_True() {
         when(userService.createUser(any(SignupRequestDto.class))).thenReturn(true);
+        when(userService.subscriberAddedToTopic(any(SignupRequestDto.class), anyString())).thenReturn(true);
 
         ResponseEntity<String> response = signup.createUser(requestDto);
 
