@@ -63,16 +63,18 @@ public class SnsRepository {
                     snsClient.close();
                     return true;
                 } else {
+                    LOGGER.warning("Subscriber creation failed");
                     throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, subscribeResponse.sdkHttpResponse().statusText().get());
                 }
             } catch (Exception exp) {
                 LOGGER.warning(exp.toString());
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, exp.toString());
             }
-            return false;
         }
     }
 
     public String getTopicArn(String topicName) {
+        LOGGER.info("Getting topic arn for topic : " + topicName);
         Map<String, AttributeValue> key = new HashMap<>();
         key.put("topicName", AttributeValue.builder().s(topicName).build());
         GetItemRequest getItemRequest = GetItemRequest.builder().tableName(STORE_TOPIC_ARN).key(key).build();
@@ -80,11 +82,14 @@ public class SnsRepository {
             GetItemResponse itemResponse = client.getItem(getItemRequest);
             Map<String, AttributeValue> item = itemResponse.item();
             if (item != null && !item.isEmpty()) {
+                LOGGER.info("Successful retrieval of topic : " + topicName);
                 return item.get("topicArn").s();
             }
         } catch (DynamoDbException exp) {
             LOGGER.warning(exp.toString());
+            throw exp;
         }
+        LOGGER.info("Couldn't retrieve topic arn");
         return null;
     }
 }
