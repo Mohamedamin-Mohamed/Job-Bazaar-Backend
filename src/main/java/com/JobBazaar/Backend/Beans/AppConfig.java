@@ -1,6 +1,8 @@
 package com.JobBazaar.Backend.Beans;
 
+import com.JobBazaar.Backend.Repositories.EducationRepository;
 import com.JobBazaar.Backend.Repositories.SnsRepository;
+import com.JobBazaar.Backend.Services.EducationService;
 import com.JobBazaar.Backend.Services.UserService;
 import com.JobBazaar.Backend.Mappers.DynamoDbItemMapper;
 import com.JobBazaar.Backend.Repositories.UserRepository;
@@ -27,24 +29,29 @@ public class AppConfig {
     public UserService userService() {
         return new UserService(userRepository(), snsRepository(), passwordutils());
     }
-
+    @Bean
+    public EducationService educationService() {
+        return new EducationService(educationRepository());
+    }
     @Bean
     public PasswordUtils passwordutils() {
         return new PasswordUtils();
     }
-
     @Bean
     public DynamoDbItemMapper dynamoDbItemMapper() {
         return new DynamoDbItemMapper();
     }
-
     @Bean
     public UserRepository userRepository() {
-        return new UserRepository(dynamoDbClient(), dynamoDbItemMapper(), passwordutils());
+        return new UserRepository(dynamoDbClient(), dynamoDbItemMapper(), passwordutils(), buildSesV2Client());
     }
     @Bean
     public SnsRepository snsRepository() {
         return new SnsRepository(dynamoDbClient(), buildSnsClient());
+    }
+    @Bean
+    public EducationRepository educationRepository() {
+        return new EducationRepository(dynamoDbClient(), dynamoDbItemMapper());
     }
 
     @Bean
@@ -65,5 +72,10 @@ public class AppConfig {
     @Bean
     public SnsClient buildSnsClient() {
         return SnsClient.builder().region(Region.US_EAST_2).build();
+    }
+
+    @Bean
+    public SesV2Client buildSesV2Client() {
+        return SesV2Client.builder().region(Region.US_EAST_2).build();
     }
 }
