@@ -1,28 +1,27 @@
 package com.JobBazaar.Backend.Repositories;
 
-import com.JobBazaar.Backend.Dto.SignupRequestDto;
 import com.JobBazaar.Backend.Dto.UserNames;
 import com.JobBazaar.Backend.Dto.RequestDto;
 import com.JobBazaar.Backend.Dto.UserDto;
 import com.JobBazaar.Backend.Mappers.DynamoDbItemMapper;
 import com.JobBazaar.Backend.Utils.PasswordUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
-import org.springframework.web.server.ResponseStatusException;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.*;
-import software.amazon.awssdk.services.sns.SnsClient;
-import software.amazon.awssdk.services.sns.model.SubscribeRequest;
-import software.amazon.awssdk.services.sns.model.SubscribeResponse;
+import software.amazon.awssdk.services.sesv2.SesV2Client;
+import software.amazon.awssdk.services.sesv2.model.Body;
+import software.amazon.awssdk.services.sesv2.model.Content;
+import software.amazon.awssdk.services.sesv2.model.Destination;
+import software.amazon.awssdk.services.sesv2.model.EmailContent;
+import software.amazon.awssdk.services.sesv2.model.Message;
+import software.amazon.awssdk.services.sesv2.model.SendEmailRequest;
+import software.amazon.awssdk.services.sesv2.model.SendEmailResponse;
+import software.amazon.awssdk.services.sesv2.model.SesV2Exception;
 
-import java.net.http.HttpHeaders;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Supplier;
 import java.util.logging.Logger;
-
-import static org.springframework.boot.system.SystemProperties.get;
 
 @Repository
 public class UserRepository {
@@ -30,15 +29,17 @@ public class UserRepository {
     private final DynamoDbClient client;
     private final DynamoDbItemMapper itemMapper;
     private final PasswordUtils passwordUtils;
+    private final SesV2Client sesV2Client;
 
     private final String USERS = "Users";
-    private final String STORE_TOPIC_ARN = "Store_Topic_Arn";
     private static final Logger LOGGER = Logger.getLogger(UserRepository.class.getName());
+
     @Autowired
-    public UserRepository(DynamoDbClient client, DynamoDbItemMapper itemMapper, PasswordUtils passwordUtils) {
+    public UserRepository(DynamoDbClient client, DynamoDbItemMapper itemMapper, PasswordUtils passwordUtils, SesV2Client sesV2Client) {
         this.client = client;
         this.itemMapper = itemMapper;
         this.passwordUtils = passwordUtils;
+        this.sesV2Client = sesV2Client;
     }
 
     public boolean addUser(UserDto user) {
@@ -92,8 +93,7 @@ public class UserRepository {
 
                 //now compare the hashedPassword retrieved with the plainText from the user
                 return passwordUtils.checkPassword(requestDto.getPassword(), hashedPassword);
-            }
-            else return false;
+            } else return false;
         } catch (DynamoDbException exp) {
             LOGGER.warning(exp.toString());
             throw exp;
@@ -129,6 +129,7 @@ public class UserRepository {
             UserNames person = null;
             if (item != null && !item.isEmpty()) {
                 person = new UserNames();
+                System.out.println("Name is " + item.get("firstName").s());
                 String firstName = item.get("firstName").s();
                 String lastName = item.get("lastName").s();
 
@@ -142,5 +143,22 @@ public class UserRepository {
         }
     }
 
+    public boolean sendWelcomeMessage(String sender, String recipient, String subject, String bodyHTML) {
+        Destination destination = Destination.builder().toAddresses(recipient).build();
+        Content content = Content.builder().data(bodyHTML).build();
+        Content sub = Content.builder().data(subject).build();
+        Body body = Body.builder().html(content).build();
+        Message msg = Message.builder().subject(sub).body(body).build();
+        EmailContent emailContent = EmailContent.builder().simple(msg).build();
+
+        SendEmailRequest emailRequest = SendEmailRequest.builder().destination(destination).fromEmailAddress(sender).content(emailContent).build();
+        try {
+            SendEmailResponse sendEmailResponse = sesV2Client.sendEmail(emailRequest);
+            return sendEmailResponse.sdkHttpResponse().isSuccessful();
+        } catch (SesV2Exception exp) {
+            LOGGER.warning(exp.toString());
+            throw exp;
+        }
+    }
 
 }

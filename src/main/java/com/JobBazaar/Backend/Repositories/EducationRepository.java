@@ -99,7 +99,6 @@ public class EducationRepository {
 
     private static EducationDto getEducationDto(GetItemResponse getItemResponse) {
         Map<String, AttributeValue> items = getItemResponse.item();
-        System.out.println(items + " here irts");
         if (items.isEmpty()) return null;
 
         EducationDto educationDto = new EducationDto();
