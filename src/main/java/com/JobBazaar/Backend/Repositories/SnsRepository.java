@@ -58,6 +58,7 @@ public class SnsRepository {
                     .endpoint(signupRequest.getEmail()).build();
             try {
                 SubscribeResponse subscribeResponse = snsClient.subscribe(subscribeRequest);
+                LOGGER.info(subscribeResponse.toString());
                 if (subscribeResponse.sdkHttpResponse().isSuccessful()) {
                     LOGGER.info("Subscriber creation successful");
                     snsClient.close();
