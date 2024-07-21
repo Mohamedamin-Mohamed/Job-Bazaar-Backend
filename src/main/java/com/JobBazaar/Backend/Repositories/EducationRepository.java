@@ -50,10 +50,11 @@ public class EducationRepository {
 
     public boolean updateEducation(EducationDto educationDto) throws ParseException, JsonProcessingException {
         LOGGER.info("Updating education");
-        Map<String, AttributeValue> key = new HashMap<>();
+        Map<String, AttributeValue> key;
         key = dynamoDbItemMapper.toDynamoDbItemMap(educationDto);
 
         UpdateItemRequest updateItemRequest = UpdateItemRequest.builder().tableName(EDUCATION).key(key).build();
+        LOGGER.info("Updating " + updateItemRequest.toString());
         try {
             UpdateItemResponse updateItemResponse = client.updateItem(updateItemRequest);
             LOGGER.info("Updated education: " + updateItemResponse.toString());
