@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.text.ParseException;
 
 public class EducationService {
-    private EducationRepository educationRepository;
+    private final EducationRepository educationRepository;
 
     @Autowired
     public EducationService(EducationRepository educationRepository) {
