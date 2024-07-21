@@ -1,14 +1,19 @@
 package com.JobBazaar.Backend.Repositories;
 
-import com.JobBazaar.Backend.Dto.UserNames;
 import com.JobBazaar.Backend.Dto.RequestDto;
 import com.JobBazaar.Backend.Dto.UserDto;
+import com.JobBazaar.Backend.Dto.UserNames;
 import com.JobBazaar.Backend.Mappers.DynamoDbItemMapper;
 import com.JobBazaar.Backend.Utils.PasswordUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
-import software.amazon.awssdk.services.dynamodb.model.*;
+import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
+import software.amazon.awssdk.services.dynamodb.model.DynamoDbException;
+import software.amazon.awssdk.services.dynamodb.model.GetItemRequest;
+import software.amazon.awssdk.services.dynamodb.model.GetItemResponse;
+import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
+import software.amazon.awssdk.services.dynamodb.model.PutItemResponse;
 import software.amazon.awssdk.services.sesv2.SesV2Client;
 import software.amazon.awssdk.services.sesv2.model.Body;
 import software.amazon.awssdk.services.sesv2.model.Content;

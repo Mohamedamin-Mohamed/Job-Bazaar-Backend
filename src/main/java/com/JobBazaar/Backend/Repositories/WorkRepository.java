@@ -1,6 +1,6 @@
 package com.JobBazaar.Backend.Repositories;
 
-import com.JobBazaar.Backend.Dto.EducationDto;
+import com.JobBazaar.Backend.Dto.WorkDto;
 import com.JobBazaar.Backend.Mappers.DynamoDbItemMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
@@ -20,119 +20,116 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
-public class EducationRepository {
+public class WorkRepository {
 
     private final DynamoDbClient client;
     private final DynamoDbItemMapper dynamoDbItemMapper;
 
-    private final String EDUCATION = "Education";
-    private final Logger LOGGER = Logger.getLogger(EducationRepository.class.getName());
+    private final String WORK = "Work";
+    private final Logger LOGGER = Logger.getLogger(WorkRepository.class.getName());
 
-    public EducationRepository(DynamoDbClient client, DynamoDbItemMapper dynamoDbItemMapper) {
+    public WorkRepository(DynamoDbClient client, DynamoDbItemMapper dynamoDbItemMapper) {
         this.client = client;
         this.dynamoDbItemMapper = dynamoDbItemMapper;
     }
 
-    public boolean saveEducation(EducationDto educationDto) throws ParseException, JsonProcessingException {
-        LOGGER.info("Saving education");
+    public boolean saveWorkExperience(WorkDto workDto) throws ParseException, JsonProcessingException {
+        LOGGER.info("Saving work experience");
         Map<String, AttributeValue> item = new HashMap<>();
-        item = dynamoDbItemMapper.toDynamoDbItemMap(educationDto);
-        PutItemRequest putItemRequest = PutItemRequest.builder().tableName(EDUCATION).item(item).build();
+        item = dynamoDbItemMapper.toDynamoDbItemMap(workDto);
+        PutItemRequest putItemRequest = PutItemRequest.builder().tableName(WORK).item(item).build();
         try {
             PutItemResponse putItemResponse = client.putItem(putItemRequest);
-            LOGGER.info("Added new education: " + putItemResponse.toString());
+            LOGGER.info("Added new work experience: " + putItemResponse.toString());
             return putItemResponse.sdkHttpResponse().isSuccessful();
         } catch (DynamoDbException exp) {
-            LOGGER.warning("Education couldn't be created" + exp.getMessage());
+            LOGGER.warning("Work experience couldn't be created" + exp.getMessage());
             throw exp;
         }
     }
 
-    public boolean updateEducation(EducationDto educationDto) throws ParseException, JsonProcessingException {
+    public boolean updateWorkExperience(WorkDto workDto) throws ParseException, JsonProcessingException {
         LOGGER.info("Updating education");
         Map<String, AttributeValue> key;
-        key = dynamoDbItemMapper.toDynamoDbItemMap(educationDto);
+        key = dynamoDbItemMapper.toDynamoDbItemMap(workDto);
 
-        UpdateItemRequest updateItemRequest = UpdateItemRequest.builder().tableName(EDUCATION).key(key).build();
-        LOGGER.info("Updating " + updateItemRequest.toString());
+        UpdateItemRequest updateItemRequest = UpdateItemRequest.builder().tableName(WORK).key(key).build();
+        LOGGER.info("Updating work experience" + updateItemRequest.toString());
         try {
             UpdateItemResponse updateItemResponse = client.updateItem(updateItemRequest);
-            LOGGER.info("Updated education: " + updateItemResponse.toString());
+            LOGGER.info("Updated work experience: " + updateItemResponse.toString());
             return updateItemResponse.sdkHttpResponse().isSuccessful();
         } catch (DynamoDbException exp) {
-            LOGGER.warning("Education couldn't be updated" + exp.getMessage());
+            LOGGER.warning("Work experience couldn't be updated" + exp.getMessage());
             throw exp;
         }
     }
 
-    public boolean deleteEducation(String email) {
-        LOGGER.info("Deleting education");
+    public boolean deleteWorkExperience(String email) {
+        LOGGER.info("Deleting work experience");
         Map<String, AttributeValue> key = new HashMap<>();
         key.put("email", AttributeValue.builder().s(email).build());
 
-        DeleteItemRequest deleteItemRequest = DeleteItemRequest.builder().key(key).tableName(EDUCATION).build();
+        DeleteItemRequest deleteItemRequest = DeleteItemRequest.builder().key(key).tableName(WORK).build();
         try {
             DeleteItemResponse deleteItemResponse = client.deleteItem(deleteItemRequest);
-            LOGGER.info("Deleted education: " + deleteItemResponse.toString());
+            LOGGER.info("Deleted work experience: " + deleteItemResponse.toString());
             return deleteItemResponse.sdkHttpResponse().isSuccessful();
         } catch (DynamoDbException exp) {
-            LOGGER.warning("Education couldn't be deleted" + exp.getMessage());
+            LOGGER.warning("Work experience couldn't be deleted" + exp.getMessage());
             throw exp;
         }
     }
 
-    public EducationDto getEducation(String email) {
-        LOGGER.info("Retrieving education");
+    public WorkDto getWorkExperience(String email) {
+        LOGGER.info("Retrieving work experience");
         Map<String, AttributeValue> key = new HashMap<>();
         key.put("email", AttributeValue.builder().s(email).build());
 
-        GetItemRequest getItemRequest = GetItemRequest.builder().key(key).tableName(EDUCATION).build();
+        GetItemRequest getItemRequest = GetItemRequest.builder().key(key).tableName(WORK).build();
 
         try {
             GetItemResponse getItemResponse = client.getItem(getItemRequest);
-            LOGGER.info("Retrieved education: " + getItemResponse.toString());
-            return getEducationDto(getItemResponse);
+            LOGGER.info("Retrieved work experience: " + getItemResponse.toString());
+            return getWorkDto(getItemResponse);
         } catch (DynamoDbException exp) {
-            LOGGER.warning("Education couldn't be retrieved" + exp.getMessage());
+            LOGGER.warning("Work experience couldn't be retrieved" + exp.getMessage());
             throw exp;
         }
     }
 
-    private static EducationDto getEducationDto(GetItemResponse getItemResponse) {
+    private static WorkDto getWorkDto(GetItemResponse getItemResponse) {
         Map<String, AttributeValue> items = getItemResponse.item();
         if (items.isEmpty()) return null;
 
-        EducationDto educationDto = new EducationDto();
+        WorkDto workDto = new WorkDto();
         for (Map.Entry<String, AttributeValue> entrySet : items.entrySet()) {
             String key = entrySet.getKey();
             AttributeValue attributeValue = entrySet.getValue();
             String value = attributeValue.s();
             if (!value.isEmpty()) {
                 switch (key) {
-                    case "email":
-                        educationDto.setEmail(value);
+                    case "title":
+                        workDto.setTittle(value);
                         break;
-                    case "school":
-                        educationDto.setSchool(value);
+                    case "company":
+                        workDto.setCompany(value);
                         break;
-                    case "major":
-                        educationDto.setMajor(value);
-                        break;
-                    case "degree":
-                        educationDto.setDegree(value);
+                    case "location":
+                        workDto.setLocation(value);
                         break;
                     case "description":
-                        educationDto.setDescription(value);
+                        workDto.setDescription(value);
                         break;
                     case "startDate":
-                        educationDto.setStartDate(value);
+                        workDto.setStartDate(value);
                         break;
                     case "endDate":
-                        educationDto.setEndDate(value);
+                        workDto.setEndDate(value);
                         break;
                 }
             }
         }
-        return educationDto;
+        return workDto;
     }
 }

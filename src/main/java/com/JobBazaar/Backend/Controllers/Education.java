@@ -8,7 +8,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,10 +18,10 @@ import java.text.ParseException;
 import java.util.logging.Logger;
 
 @RestController
-@RequestMapping("/api/user-education/")
+@RequestMapping("/api/user-education")
 public class Education {
     private static final Logger LOGGER = Logger.getLogger(Education.class.getName());
-    private EducationService educationService;
+    private final EducationService educationService;
 
     @Autowired
     public Education(EducationService educationService) {
@@ -48,17 +47,6 @@ public class Education {
             return ResponseEntity.ok(educationDto);
         } else {
             return ResponseEntity.notFound().build();
-        }
-    }
-
-    @PatchMapping("/update")
-    public ResponseEntity<String> updateEducation(@RequestBody EducationDto educationDto) throws ParseException, JsonProcessingException {
-        boolean updatedEducation = educationService.updateEducation(educationDto);
-
-        if (updatedEducation) {
-            return new ResponseEntity<>("Education updated succesfully", HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>("Education could not be updated", HttpStatus.BAD_REQUEST);
         }
     }
 

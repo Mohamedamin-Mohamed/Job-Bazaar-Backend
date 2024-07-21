@@ -2,6 +2,7 @@ package com.JobBazaar.Backend.Mappers;
 
 import com.JobBazaar.Backend.Dto.EducationDto;
 import com.JobBazaar.Backend.Dto.UserDto;
+import com.JobBazaar.Backend.Dto.WorkDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
@@ -32,6 +33,19 @@ public class DynamoDbItemMapper {
         item.put("description", AttributeValue.builder().s(educationDto.getDescription()).build());
         item.put("startDate", AttributeValue.builder().s(educationDto.getStartDate()).build());
         item.put("endDate", AttributeValue.builder().s(educationDto.getEndDate()).build());
+
+        return item;
+    }
+
+    public Map<String, AttributeValue> toDynamoDbItemMap(WorkDto workDto) throws ParseException, JsonProcessingException {
+        Map<String, AttributeValue> item = new HashMap<>();
+        item.put("email", AttributeValue.builder().s(workDto.getEmail()).build());
+        item.put("title", AttributeValue.builder().s(workDto.getTitle()).build());
+        item.put("company", AttributeValue.builder().s(workDto.getCompany()).build());
+        item.put("location", AttributeValue.builder().s(workDto.getLocation()).build());
+        item.put("description", AttributeValue.builder().s(workDto.getDescription()).build());
+        item.put("startDate", AttributeValue.builder().s(workDto.getStartDate()).build());
+        item.put("endDate", AttributeValue.builder().s(workDto.getEndDate()).build());
 
         return item;
     }

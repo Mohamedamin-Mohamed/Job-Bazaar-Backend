@@ -2,10 +2,12 @@ package com.JobBazaar.Backend.Beans;
 
 import com.JobBazaar.Backend.Repositories.EducationRepository;
 import com.JobBazaar.Backend.Repositories.SnsRepository;
+import com.JobBazaar.Backend.Repositories.WorkRepository;
 import com.JobBazaar.Backend.Services.EducationService;
 import com.JobBazaar.Backend.Services.UserService;
 import com.JobBazaar.Backend.Mappers.DynamoDbItemMapper;
 import com.JobBazaar.Backend.Repositories.UserRepository;
+import com.JobBazaar.Backend.Services.WorkService;
 import com.JobBazaar.Backend.Utils.PasswordUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,6 +36,10 @@ public class AppConfig {
         return new EducationService(educationRepository());
     }
     @Bean
+    public WorkService workService(){
+        return new WorkService(workRepository());
+    }
+    @Bean
     public PasswordUtils passwordutils() {
         return new PasswordUtils();
     }
@@ -53,7 +59,10 @@ public class AppConfig {
     public EducationRepository educationRepository() {
         return new EducationRepository(dynamoDbClient(), dynamoDbItemMapper());
     }
-
+    @Bean
+    public WorkRepository workRepository(){
+        return new WorkRepository(dynamoDbClient(), dynamoDbItemMapper());
+    }
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
