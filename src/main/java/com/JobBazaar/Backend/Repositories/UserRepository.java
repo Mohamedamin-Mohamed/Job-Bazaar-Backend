@@ -1,8 +1,9 @@
 package com.JobBazaar.Backend.Repositories;
 
+import com.JobBazaar.Backend.Dto.AppUser;
+import com.JobBazaar.Backend.Dto.PasswordResetDto;
 import com.JobBazaar.Backend.Dto.RequestDto;
 import com.JobBazaar.Backend.Dto.UserDto;
-import com.JobBazaar.Backend.Dto.UserNames;
 import com.JobBazaar.Backend.Mappers.DynamoDbItemMapper;
 import com.JobBazaar.Backend.Utils.PasswordUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +48,7 @@ public class UserRepository {
         this.sesV2Client = sesV2Client;
     }
 
-    public boolean addUser(UserDto user) {
+    public boolean addUser(AppUser user) {
         LOGGER.info("Adding user: " + user.toString());
         Map<String, AttributeValue> item = itemMapper.toDynamoDbItemMap(user);
         PutItemRequest request = PutItemRequest.builder().tableName(USERS).item(item).build();
@@ -61,19 +62,19 @@ public class UserRepository {
         }
     }
 
-    public boolean updateUser(RequestDto requestDto) {
-        LOGGER.info("Updating user with email " + requestDto.getEmail());
-        //hash the users password
-        String hashedPassword = passwordUtils.hashPassword(requestDto.getPassword());
+    public boolean updateUser(PasswordResetDto passwordResetDto) {
+        LOGGER.info("Updating user with email " + passwordResetDto.getEmail());
 
-        Map<String, AttributeValue> key = new HashMap<>();
-        key.put("email", AttributeValue.builder().s(requestDto.getEmail()).build());
-        key.put("hashedPassword", AttributeValue.builder().s(hashedPassword).build());
+        //hash the users password
+        String hashedPassword = passwordUtils.hashPassword(passwordResetDto.getPassword());
+
+        Map<String, AttributeValue> key = itemMapper.toDynamoDbItemMap(passwordResetDto, hashedPassword);
+
         PutItemRequest req = PutItemRequest.builder().tableName(USERS).item(key).build();
         try {
             PutItemResponse resp = client.putItem(req);
-            LOGGER.info("Changed password for user with email " + requestDto.getEmail());
-            return true;
+            LOGGER.info("Changed password for user with email " + passwordResetDto.getEmail());
+            return resp.sdkHttpResponse().isSuccessful();
         } catch (DynamoDbException exp) {
             LOGGER.warning(exp.toString());
             throw exp;
@@ -122,7 +123,7 @@ public class UserRepository {
         }
     }
 
-    public UserNames getUsersInfo(String email) {
+    public UserDto getUsersInfo(String email) {
         LOGGER.info("Grabbing " + email + " info");
         Map<String, AttributeValue> key = new HashMap<>();
         key.put("email", AttributeValue.builder().s(email).build());
@@ -131,15 +132,20 @@ public class UserRepository {
             //it returns an object which can be checked if its null and if its empty
             GetItemResponse resp = client.getItem(req);
             Map<String, AttributeValue> item = resp.item();
-            UserNames person = null;
+            UserDto person = null;
             if (item != null && !item.isEmpty()) {
-                person = new UserNames();
-                System.out.println("Name is " + item.get("firstName").s());
+                person = new UserDto();
+
                 String firstName = item.get("firstName").s();
                 String lastName = item.get("lastName").s();
+                String role = item.get("role").s();
+                String createdAt = item.get("createdAt").s();
 
+                person.setEmail(email);
                 person.setFirstName(firstName);
                 person.setLastName(lastName);
+                person.setRole(role);
+                person.setCreatedAt(createdAt);
             }
             return person;
         } catch (DynamoDbException exp) {
