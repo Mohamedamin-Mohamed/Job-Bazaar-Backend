@@ -1,4 +1,4 @@
-package com.JobBazaar.Backend.Dto;
+package com.JobBazaar.Backend.Responses;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
