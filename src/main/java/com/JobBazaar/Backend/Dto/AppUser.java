@@ -4,7 +4,7 @@ So basically it represents the structure of the user data that is stored in Dyna
 
 import java.util.Date;
 
-public class UserDto {
+public class AppUser {
     private String email;
     private String hashedPassword;
     private String firstName;
