@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -19,6 +18,7 @@ public class Token {
 
     private final JwtTokenService jwtTokenService;
     private Logger LOGGER = Logger.getLogger(Token.class.getName());
+
     @Autowired
     public Token(JwtTokenService jwtTokenService) {
         this.jwtTokenService = jwtTokenService;
@@ -26,11 +26,11 @@ public class Token {
 
     @GetMapping("/")
     public ResponseEntity<String> validateToken(@RequestHeader("Authorization") String authHeader,
-                                                @RequestParam (required = false) String email){
+                                                @RequestParam(required = false) String email) {
         LOGGER.info("Received request to check token " + authHeader);
         String token = authHeader.replace("Bearer ", "");
         boolean isValid = jwtTokenService.verifyJwtToken(token);
-        if(isValid){
+        if (isValid) {
             return ResponseEntity.ok().build();
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
