@@ -1,0 +1,10 @@
+api: ''
+key: ''
+logging:
+    level:
+        org:
+            springframework:
+                security: debug
+spring:
+    application:
+        name: Backend
