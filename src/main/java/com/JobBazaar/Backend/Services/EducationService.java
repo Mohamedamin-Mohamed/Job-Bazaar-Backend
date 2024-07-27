@@ -4,9 +4,11 @@ import com.JobBazaar.Backend.Dto.EducationDto;
 import com.JobBazaar.Backend.Repositories.EducationRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
 
+@Service
 public class EducationService {
     private final EducationRepository educationRepository;
 
