@@ -3,6 +3,7 @@ package com.JobBazaar.Backend.Repositories;
 import com.JobBazaar.Backend.Dto.SignupRequestDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
@@ -20,7 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
-@Service
+@Repository
 public class SnsRepository {
     private final String STORE_TOPIC_ARN = "Store_Topic_Arn";
     private static final Logger LOGGER = Logger.getLogger(UserRepository.class.getName());
