@@ -1,46 +1,55 @@
 package com.JobBazaar.Backend.Controllers;
 
 import com.JobBazaar.Backend.Dto.SignupRequestDto;
+import com.JobBazaar.Backend.Dto.UserDto;
+import com.JobBazaar.Backend.JwtToken.JwtTokenService;
 import com.JobBazaar.Backend.Services.UserService;
-import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
 @RestController
+@RequestMapping("/accounts/signup")
 public class Signup {
     private static final Logger LOGGER = Logger.getLogger(Signup.class.getName());
 
     private final UserService userService;
-
-    Dotenv dotenv = Dotenv.load();
-    String emailAddress = dotenv.get("EMAIL_ADDRESS");
+    private JwtTokenService jwtToken;
 
     @Autowired
-    public Signup(UserService userService) {
+    public Signup(UserService userService, JwtTokenService jwtToken) {
         this.userService = userService;
+        this.jwtToken = jwtToken;
     }
 
-    @PostMapping("/accounts/signup")
-    public ResponseEntity<String> createUser(@RequestBody SignupRequestDto signupRequest) {
+    @PostMapping("/")
+    public ResponseEntity<Object> createUser(@RequestBody SignupRequestDto signupRequest) {
         LOGGER.info("Signup request received");
 
-        boolean isUserCreated = userService.createUser(signupRequest);
+        UserDto userDto = userService.createUser(signupRequest);
+        if (userDto == null) {
+            String message = "Account already exists";
+            Map<String, Object> response = new HashMap<>();
+            response.put("user", null);
+            response.put("message", message);
+            return new ResponseEntity<>(response, HttpStatus.CONFLICT);
+        }
+        String token = jwtToken.createJwtToken(userDto);
+        String message = "Account created successfully, redirecting you to login";
+        Map<String, Object> response = new HashMap<>();
+        response.put("token", token);
+        response.put("user", userDto);
+        response.put("message", message);
+
         boolean isSubscriberAddedToTopic = userService.subscriberAddedToTopic(signupRequest, "UserAccountNotifications");
-
-        String subject = "Welcome to JobBazaar! Your account has been created!";
-        String bodyHTML = "<htmL>" + "<head></head>" + "<body>" + subject + "</body>" + "</htmL>";
-       // boolean isWelcomeMessageSent = userService.sendWelcomeMessage(emailAddress, signupRequest.getEmail(), subject, bodyHTML);
-
-        if (isUserCreated && isSubscriberAddedToTopic) {
-            return new ResponseEntity<>("Account created successfully, Login to your account", HttpStatus.CREATED);
-        }
-        else {
-            return new ResponseEntity<>("Account already exists", HttpStatus.CONFLICT);
-        }
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
-
 }
