@@ -2,8 +2,11 @@ package com.JobBazaar.Backend.JwtToken;
 
 import com.JobBazaar.Backend.Dto.UserDto;
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwsHeader;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -17,9 +20,13 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.spec.SecretKeySpec;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
+
 @Service
-public class JwtToken {
+public class JwtTokenService {
 
     @Value("${security.jwt.secret.key}")
     private String jwtSecretKey;
@@ -27,13 +34,14 @@ public class JwtToken {
     @Value("${security.jwt.issuer}")
     private String jwtIssuer;
 
-    private Logger LOGGER = Logger.getLogger(JwtToken.class.getName());
+    private Logger LOGGER = Logger.getLogger(JwtTokenService.class.getName());
+
     public String createJwtToken(UserDto userDto){
         Instant now = Instant.now();
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer(jwtIssuer)
                 .issuedAt(now)
-                .expiresAt(now.plusSeconds(24 * 3600))
+                .expiresAt(now.plusSeconds(12 * 3600))
                 .subject(userDto.getEmail())
                 .claim("role", userDto.getRole())
                 .build();
@@ -54,8 +62,14 @@ public class JwtToken {
             JwtDecoder jwtDecoder = jwtDecoder();
             Jwt decodedJwt = jwtDecoder.decode(token);
 
-            //check claims
-            if (!decodedJwt.getIssuer().equals(jwtIssuer)) {
+            //get claims
+            Map<String, Object> decodedJwtClaims = decodedJwt.getClaims();
+            System.out.println(decodedJwtClaims);
+            String issuer = (String) decodedJwtClaims.get("iss");
+            String subject = (String) decodedJwtClaims.get("subj");
+
+            //check issuer
+            if (!issuer.equals(jwtIssuer)) {
                 throw new JwtException("Invalid issuer");
             }
             return true; //token is valid
@@ -64,5 +78,14 @@ public class JwtToken {
             LOGGER.warning("Invalid token: " + e.getMessage());
             return false;
         }
+    }
+
+    public Authentication getAuthentication(String token){
+        Jwt decodedJwt = jwtDecoder().decode(token);
+        String email = decodedJwt.getSubject();
+        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+
+        User userDetails  = new User(email, "", authorities);
+        return new UsernamePasswordAuthenticationToken(userDetails, token, authorities);
     }
 }
