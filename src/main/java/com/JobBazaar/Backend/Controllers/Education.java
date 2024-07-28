@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,10 +33,9 @@ public class Education {
     ResponseEntity<String> saveEducation(@RequestBody EducationDto educationDto) throws ParseException, JsonProcessingException {
         boolean addedEducation = educationService.saveEducation(educationDto);
         if (addedEducation) {
-            return new ResponseEntity<>("Education saved succesfully", HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>("Education could not be saved", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Education saved successfully", HttpStatus.OK);
         }
+            return new ResponseEntity<>("Education could not be saved", HttpStatus.BAD_REQUEST);
     }
 
     @GetMapping("/get/{email}")
@@ -45,9 +45,19 @@ public class Education {
         EducationDto educationDto = educationService.getEducation(email);
         if (educationDto != null) {
             return ResponseEntity.ok(educationDto);
-        } else {
-            return ResponseEntity.notFound().build();
         }
+            return ResponseEntity.notFound().build();
+    }
+
+    @PatchMapping("/update")
+    public ResponseEntity<String> updateEducation(@RequestBody EducationDto educationDto) throws ParseException, JsonProcessingException {
+        LOGGER.info("Received request to update education");
+        boolean educationUpdated = educationService.updateEducation(educationDto);
+
+        if (educationUpdated) {
+            return new ResponseEntity<>("Education updated successfully", HttpStatus.OK);
+        }
+        return new ResponseEntity<>("Education could not be updated", HttpStatus.BAD_REQUEST);
     }
 
     @DeleteMapping("/delete/{email}")
@@ -56,8 +66,7 @@ public class Education {
 
         if (deletedEducation) {
             return new ResponseEntity<>("Education deleted successfully", HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>("Education could not be deleted", HttpStatus.BAD_REQUEST);
         }
+            return new ResponseEntity<>("Education could not be deleted", HttpStatus.BAD_REQUEST);
     }
 }

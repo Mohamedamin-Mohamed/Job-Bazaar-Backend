@@ -1,12 +1,20 @@
 package com.JobBazaar.Backend.Dto;
 
-
-public class UserDto {
+public class PasswordResetDto {
     private String email;
     private String firstName;
+    private String password;
     private String lastName;
     private String role;
     private String createdAt;
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
     public String getCreatedAt() {
         return createdAt;

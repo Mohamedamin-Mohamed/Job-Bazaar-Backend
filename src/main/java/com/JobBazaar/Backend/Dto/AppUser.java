@@ -1,18 +1,22 @@
 package com.JobBazaar.Backend.Dto;
+/* this class is annotated to map to the DynamoDB table and includes the below fields email and hashedPassword
+So basically it represents the structure of the user data that is stored in DynamoDB */
 
+import java.util.Date;
 
-public class UserDto {
+public class AppUser {
     private String email;
+    private String hashedPassword;
     private String firstName;
     private String lastName;
     private String role;
-    private String createdAt;
+    private Date createdAt;
 
-    public String getCreatedAt() {
+    public Date getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(String createdAt) {
+    public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
     }
 
@@ -46,5 +50,13 @@ public class UserDto {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getHashedPassword() {
+        return hashedPassword;
+    }
+
+    public void setHashedPassword(String hashedPassword) {
+        this.hashedPassword = hashedPassword;
     }
 }

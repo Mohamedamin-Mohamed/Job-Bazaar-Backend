@@ -3,6 +3,7 @@ package com.JobBazaar.Backend.Repositories;
 import com.JobBazaar.Backend.Dto.WorkDto;
 import com.JobBazaar.Backend.Mappers.DynamoDbItemMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.springframework.stereotype.Repository;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.awssdk.services.dynamodb.model.DeleteItemRequest;
@@ -20,6 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
+@Repository
 public class WorkRepository {
 
     private final DynamoDbClient client;

@@ -1,28 +1,26 @@
 package com.JobBazaar.Backend.config;
 
-import org.springframework.context.annotation.Bean;
+import com.JobBazaar.Backend.JwtToken.JwtTokenService;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import static org.springframework.security.config.Customizer.withDefaults;
-
 @Configuration
-@EnableWebSecurity
-
-
 public class SecurityConfig implements WebMvcConfigurer {
+
+    private final JwtTokenService jwtTokenService;
+
+    public SecurityConfig(JwtTokenService jwtToken) {
+        this.jwtTokenService = jwtToken;
+    }
+
     @Override
-    public void addCorsMappings(CorsRegistry registry){
+    public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
                 .allowedOrigins("http://localhost:3000", "http://localhost:3001")
-                .allowedMethods("GET", "POST", "PUT", "DELETE")
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH")
                 .allowedHeaders("*")
                 .allowCredentials(true)
                 .maxAge(3600);
     }
-
 }
