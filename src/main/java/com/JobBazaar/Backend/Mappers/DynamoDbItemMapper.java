@@ -1,12 +1,14 @@
 package com.JobBazaar.Backend.Mappers;
 
 import com.JobBazaar.Backend.Dto.EducationDto;
-import com.JobBazaar.Backend.Dto.UserDto;
+import com.JobBazaar.Backend.Dto.AppUser;
+import com.JobBazaar.Backend.Dto.PasswordResetDto;
 import com.JobBazaar.Backend.Dto.WorkDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
 import java.text.ParseException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -15,12 +17,14 @@ public class DynamoDbItemMapper {
 
     private static Logger LOGGER = Logger.getLogger(DynamoDbItemMapper.class.getName());
 
-    public Map<String, AttributeValue> toDynamoDbItemMap(UserDto user) {
+    public Map<String, AttributeValue> toDynamoDbItemMap(AppUser user) {
         Map<String, AttributeValue> item = new HashMap<>();
         item.put("email", AttributeValue.builder().s(user.getEmail()).build());
         item.put("hashedPassword", AttributeValue.builder().s(user.getHashedPassword()).build());
         item.put("firstName", AttributeValue.builder().s(user.getFirstName()).build());
         item.put("lastName", AttributeValue.builder().s(user.getLastName()).build());
+        item.put("role", AttributeValue.builder().s(user.getRole()).build());
+        item.put("createdAt", AttributeValue.builder().s(String.valueOf(new Date())).build());
         return item;
     }
 
@@ -47,6 +51,17 @@ public class DynamoDbItemMapper {
         item.put("startDate", AttributeValue.builder().s(workDto.getStartDate()).build());
         item.put("endDate", AttributeValue.builder().s(workDto.getEndDate()).build());
 
+        return item;
+    }
+
+    public  Map<String, AttributeValue> toDynamoDbItemMap(PasswordResetDto passwordResetDto, String hashedPassword){
+        Map<String, AttributeValue> item = new HashMap<>();
+        item.put("email", AttributeValue.builder().s(passwordResetDto.getEmail()).build());
+        item.put("hashedPassword", AttributeValue.builder().s(hashedPassword).build());
+        item.put("firstName", AttributeValue.builder().s(passwordResetDto.getFirstName()).build());
+        item.put("lastName", AttributeValue.builder().s(passwordResetDto.getLastName()).build());
+        item.put("role", AttributeValue.builder().s(passwordResetDto.getRole()).build());
+        item.put("createdAt", AttributeValue.builder().s(passwordResetDto.getCreatedAt()).build());
         return item;
     }
 }
