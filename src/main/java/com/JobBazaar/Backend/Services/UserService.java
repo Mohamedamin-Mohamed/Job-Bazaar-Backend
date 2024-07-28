@@ -1,6 +1,7 @@
 package com.JobBazaar.Backend.Services;
 
-import com.JobBazaar.Backend.Dto.UserNames;
+import com.JobBazaar.Backend.Dto.AppUser;
+import com.JobBazaar.Backend.Dto.PasswordResetDto;
 import com.JobBazaar.Backend.Dto.RequestDto;
 import com.JobBazaar.Backend.Dto.SignupRequestDto;
 import com.JobBazaar.Backend.Dto.UserDto;
@@ -8,20 +9,16 @@ import com.JobBazaar.Backend.Repositories.SnsRepository;
 import com.JobBazaar.Backend.Repositories.UserRepository;
 import com.JobBazaar.Backend.Utils.PasswordUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import software.amazon.awssdk.services.sesv2.SesV2Client;
-import software.amazon.awssdk.services.sesv2.model.Body;
-import software.amazon.awssdk.services.sesv2.model.Content;
-import software.amazon.awssdk.services.sesv2.model.Destination;
-import software.amazon.awssdk.services.sesv2.model.EmailContent;
-import software.amazon.awssdk.services.sesv2.model.Message;
-import software.amazon.awssdk.services.sesv2.model.SendEmailRequest;
-import software.amazon.awssdk.services.sns.SnsClient;
 
+import java.util.Date;
 import java.util.logging.Logger;
 
 @Service
-public class UserService {
+public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final SnsRepository snsRepository;
     private final PasswordUtils passwordUtils;
@@ -35,7 +32,7 @@ public class UserService {
 
     private static final Logger LOGGER = Logger.getLogger(UserService.class.getName());
 
-    public boolean createUser(SignupRequestDto signupRequest) {
+    public UserDto createUser(SignupRequestDto signupRequest) {
         RequestDto requestDto = new RequestDto();
         requestDto.setEmail(signupRequest.getEmail());
 
@@ -43,16 +40,22 @@ public class UserService {
         LOGGER.info("User created: " + !userExists);
         if (userExists) {
             LOGGER.warning("User with email: " + signupRequest.getEmail() + " already exists");
-            return false;
+            return null;
         } else {
             //pass the item so that it added to the database
-            UserDto user = new UserDto();
+            AppUser user = new AppUser();
             user.setEmail(signupRequest.getEmail());
             user.setHashedPassword(passwordUtils.hashPassword(signupRequest.getPassword()));
             user.setFirstName(signupRequest.getFirstName());
             user.setLastName(signupRequest.getLastName());
+            user.setRole("client");
+            user.setCreatedAt(new Date());
 
-            return userRepository.addUser(user);
+            boolean userAdded = userRepository.addUser(user);
+            if (userAdded) {
+                return getUsersInfo(signupRequest.getEmail());
+            }
+            return null;
         }
     }
 
@@ -65,11 +68,11 @@ public class UserService {
         return userRepository.passwordMatches(loginRequest);
     }
 
-    public boolean updateUser(RequestDto request) {
-        return userRepository.updateUser(request);
+    public boolean updateUser(PasswordResetDto passwordResetDto) {
+        return userRepository.updateUser(passwordResetDto);
     }
 
-    public UserNames getUsersInfo(String email) {
+    public UserDto getUsersInfo(String email) {
         return userRepository.getUsersInfo(email);
     }
 
@@ -83,5 +86,10 @@ public class UserService {
 
     public boolean sendWelcomeMessage(String sender, String recipient, String subject, String bodyHTML) {
         return userRepository.sendWelcomeMessage(sender, recipient, subject, bodyHTML);
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return null;
     }
 }
