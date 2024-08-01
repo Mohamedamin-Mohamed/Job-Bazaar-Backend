@@ -5,6 +5,8 @@ import com.JobBazaar.Backend.Dto.RequestDto;
 import com.JobBazaar.Backend.Dto.UserDto;
 import com.JobBazaar.Backend.JwtToken.JwtTokenService;
 import com.JobBazaar.Backend.Services.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,13 +15,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Logger;
 
 @RestController
 @RequestMapping("/accounts/login")
 public class Login {
 
-    private static Logger LOGGER = Logger.getLogger(Login.class.getName());
+    private static Logger LOGGER = LoggerFactory.getLogger(Login.class);
 
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
