@@ -31,7 +31,7 @@ public class ImageFetch {
     public ResponseEntity<ImageFetchResponse> fetchImage(@RequestParam String query) {
         LOGGER.info("Received request to search image based on the query");
         ImageFetchResponse imageFetchResponse = imageSearchService.searchImage(query);
-        if(imageFetchResponse != null) {
+        if(imageFetchResponse.getData() != null) {
             return ResponseEntity.ok(imageFetchResponse);
         }
         return ResponseEntity.notFound().build();
