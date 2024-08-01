@@ -4,14 +4,17 @@ import com.JobBazaar.Backend.JwtToken.JwtAuthenticationFilter;
 import com.JobBazaar.Backend.JwtToken.JwtTokenService;
 import com.JobBazaar.Backend.Mappers.DynamoDbItemMapper;
 import com.JobBazaar.Backend.Repositories.EducationRepository;
+import com.JobBazaar.Backend.Repositories.JobRepository;
 import com.JobBazaar.Backend.Repositories.SnsRepository;
 import com.JobBazaar.Backend.Repositories.UserRepository;
 import com.JobBazaar.Backend.Repositories.WorkRepository;
 import com.JobBazaar.Backend.Services.EducationService;
 import com.JobBazaar.Backend.Services.ImageSearchService;
+import com.JobBazaar.Backend.Services.JobService;
 import com.JobBazaar.Backend.Services.UserService;
 import com.JobBazaar.Backend.Services.WorkService;
 import com.JobBazaar.Backend.Utils.PasswordUtils;
+import com.JobBazaar.Backend.Utils.ShortUUIDGenerator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -89,6 +92,21 @@ public class AppConfig {
     @Bean
     public WorkRepository workRepository() {
         return new WorkRepository(dynamoDbClient(), dynamoDbItemMapper());
+    }
+
+    @Bean
+    public JobService jobService(){
+        return  new JobService(jobRepository(), shortUUIDGenerator());
+    }
+
+    @Bean
+    public JobRepository jobRepository(){
+        return new JobRepository(dynamoDbClient(), dynamoDbItemMapper());
+    }
+
+    @Bean
+    public ShortUUIDGenerator shortUUIDGenerator(){
+        return new ShortUUIDGenerator();
     }
 
     @Bean

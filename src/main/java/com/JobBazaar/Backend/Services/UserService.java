@@ -48,7 +48,7 @@ public class UserService implements UserDetailsService {
             user.setHashedPassword(passwordUtils.hashPassword(signupRequest.getPassword()));
             user.setFirstName(signupRequest.getFirstName());
             user.setLastName(signupRequest.getLastName());
-            user.setRole("client");
+            user.setRole(signupRequest.getRole());
             user.setCreatedAt(new Date());
 
             boolean userAdded = userRepository.addUser(user);
