@@ -1,6 +1,8 @@
 package com.JobBazaar.Backend.Controllers;
 
 import com.JobBazaar.Backend.Services.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,7 +17,7 @@ import software.amazon.awssdk.services.sns.model.CreateTopicResponse;
 @RestController
 @RequestMapping("/createTopic")
 public class Topic {
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(Login.class);
     private final SnsClient snsClient;
     private final UserService userService;
 
