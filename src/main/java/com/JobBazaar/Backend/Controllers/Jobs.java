@@ -44,7 +44,7 @@ public class Jobs {
     }
 
     @GetMapping("/employer/{employerEmail}")
-    public ResponseEntity<?> getUploadedJobsByEmployerEmail(@PathVariable String employerEmail){
+    public ResponseEntity<List<Map<String, String>>> getUploadedJobsByEmployerEmail(@PathVariable String employerEmail){
         LOGGER.info("Received request to get uploaded jobs by employer with email {}", employerEmail);
         List<Map<String, String>> jobsByEmployer = new ArrayList<>();
 
@@ -62,4 +62,23 @@ public class Jobs {
         }
         return ResponseEntity.badRequest().build();
     }
+
+    @GetMapping("/{employerEmail}/{jobId}")
+    public ResponseEntity<Map<String, String>> getJobsById(@PathVariable String employerEmail, @PathVariable String jobId){
+        LOGGER.info("Received request to fetch job by id: {}", jobId);
+
+        Map<String, String> map = new HashMap<>();
+
+        Map<String, AttributeValue> jobsMap = jobService.getJobsById(employerEmail, jobId);
+        if(jobsMap != null && !jobsMap.isEmpty()) {
+            for (Map.Entry<String, AttributeValue> entry : jobsMap.entrySet()) {
+                String key = entry.getKey();
+                String value = entry.getValue().s();
+                map.put(key, value);
+            }
+            return ResponseEntity.ok(map);
+        }
+        return ResponseEntity.badRequest().build();
+    }
+
 }
