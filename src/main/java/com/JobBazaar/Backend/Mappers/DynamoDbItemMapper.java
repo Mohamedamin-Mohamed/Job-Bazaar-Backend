@@ -66,17 +66,18 @@ public class DynamoDbItemMapper {
         return item;
     }
 
-    public Map<String, AttributeValue> toDynamoDbItemMap(JobPostRequest jobPostRequest){
-        Map<String, AttributeValue> item = new HashMap<>();
-        item.put("employerEmail", AttributeValue.builder().s(jobPostRequest.getEmployerEmail()).build());
-        item.put("jobId", AttributeValue.builder().s(jobPostRequest.getJobId()).build());
-        item.put("position", AttributeValue.builder().s(jobPostRequest.getPosition()).build());
-        item.put("workPlace", AttributeValue.builder().s(jobPostRequest.getWorkPlace()).build());
-        item.put("location", AttributeValue.builder().s(jobPostRequest.getLocation()).build());
-        item.put("jobFunction", AttributeValue.builder().s(jobPostRequest.getJobFunction()).build());
-        item.put("jobType", AttributeValue.builder().s(jobPostRequest.getJobType()).build());
-        item.put("description", AttributeValue.builder().s(jobPostRequest.getDescription()).build());
-        item.put("requirements", AttributeValue.builder().s(jobPostRequest.getRequirements()).build());
+        public Map<String, AttributeValue> toDynamoDbItemMap(JobPostRequest jobPostRequest){
+            Map<String, AttributeValue> item = new HashMap<>();
+            item.put("employerEmail", AttributeValue.builder().s(jobPostRequest.getEmployerEmail()).build());
+            item.put("jobId", AttributeValue.builder().s(jobPostRequest.getJobId()).build());
+            item.put("company", AttributeValue.builder().s(jobPostRequest.getCompany()).build());
+            item.put("position", AttributeValue.builder().s(jobPostRequest.getPosition()).build());
+            item.put("workPlace", AttributeValue.builder().s(jobPostRequest.getWorkPlace()).build());
+            item.put("location", AttributeValue.builder().s(jobPostRequest.getLocation()).build());
+            item.put("jobFunction", AttributeValue.builder().s(jobPostRequest.getJobFunction()).build());
+            item.put("jobType", AttributeValue.builder().s(jobPostRequest.getJobType()).build());
+            item.put("description", AttributeValue.builder().s(jobPostRequest.getDescription()).build());
+            item.put("requirements", AttributeValue.builder().s(jobPostRequest.getRequirements()).build());
         return item;
     }
 }
