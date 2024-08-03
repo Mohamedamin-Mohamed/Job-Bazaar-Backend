@@ -24,12 +24,18 @@ public class JobService {
     }
 
     public boolean createJob(JobPostRequest jobPostRequest){
-        String jobId = shortUUIDGenerator.generateShortUUID();
-        jobPostRequest.setJobId(jobId);
+        if(jobPostRequest.getJobId().isEmpty()) {
+            String jobId = shortUUIDGenerator.generateShortUUID();
+            jobPostRequest.setJobId(jobId);
+        }
         return jobRepository.saveJob(jobPostRequest);
     }
 
     public List<Map<String, AttributeValue>> getJobsByEmployerEmail(String employerEmail){
         return jobRepository.getJobsByEmployerEmail(employerEmail);
+    }
+
+    public Map<String, AttributeValue> getJobsById(String employerEmail, String jobId){
+        return jobRepository.getJobsById(employerEmail, jobId);
     }
 }
