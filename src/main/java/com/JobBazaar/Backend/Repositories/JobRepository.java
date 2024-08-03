@@ -1,6 +1,5 @@
 package com.JobBazaar.Backend.Repositories;
 
-import com.JobBazaar.Backend.Controllers.Jobs;
 import com.JobBazaar.Backend.Dto.JobPostRequest;
 import com.JobBazaar.Backend.Mappers.DynamoDbItemMapper;
 import org.slf4j.Logger;
@@ -30,30 +29,29 @@ public class JobRepository {
     private final DynamoDbItemMapper dynamoDbItemMapper;
 
     @Autowired
-    public JobRepository(DynamoDbClient client, DynamoDbItemMapper dynamoDbItemMapper){
+    public JobRepository(DynamoDbClient client, DynamoDbItemMapper dynamoDbItemMapper) {
         this.client = client;
         this.dynamoDbItemMapper = dynamoDbItemMapper;
     }
 
-    public boolean saveJob(JobPostRequest jobPostRequest){
+    public boolean saveJob(JobPostRequest jobPostRequest) {
         LOGGER.info("Saving job with employer email {}", jobPostRequest.getEmployerEmail());
 
         Map<String, AttributeValue> item = dynamoDbItemMapper.toDynamoDbItemMap(jobPostRequest);
 
         PutItemRequest putItemRequest = PutItemRequest.builder().item(item).tableName(JOBS).build();
 
-        try{
+        try {
             PutItemResponse putItemResponse = client.putItem(putItemRequest);
             LOGGER.info("Job saved successfully");
             return putItemResponse.sdkHttpResponse().isSuccessful();
-        }
-        catch(Exception exp){
+        } catch (Exception exp) {
             LOGGER.error("Couldn't save new job {}", exp.toString());
             throw exp;
         }
     }
 
-    public  List<Map<String, AttributeValue>> getJobsByEmployerEmail(String employerEmail){
+    public List<Map<String, AttributeValue>> getJobsByEmployerEmail(String employerEmail) {
         LOGGER.info("Getting jobs uploaded by employer with email {}", employerEmail);
 
         String keyConditionExpression = "employerEmail=:empEmail";
@@ -65,23 +63,22 @@ public class JobRepository {
         QueryRequest queryRequest = QueryRequest.builder().keyConditionExpression(keyConditionExpression).
                 expressionAttributeValues(key).tableName(JOBS).build();
 
-        try{
+        try {
             QueryResponse queryResponse = client.query(queryRequest);
 
             List<Map<String, AttributeValue>> jobsMap = new ArrayList<>();
             List<Map<String, AttributeValue>> items = queryResponse.items();
-            for(Map<String, AttributeValue> item : items){
+            for (Map<String, AttributeValue> item : items) {
                 jobsMap.add(item);
             }
             return jobsMap;
-        }
-        catch (Exception exp){
+        } catch (Exception exp) {
             LOGGER.error("Couldn't retrieve uploaded jobs {}", exp.toString());
             throw exp;
         }
     }
 
-    public Map<String, AttributeValue> getJobsById(String employerEmail, String jobId){
+    public Map<String, AttributeValue> getJobsById(String employerEmail, String jobId) {
         LOGGER.info("Retrieving job related to job id {}", jobId);
 
         Map<String, AttributeValue> key = new HashMap<>();
@@ -90,12 +87,11 @@ public class JobRepository {
 
         GetItemRequest getItemRequest = GetItemRequest.builder().tableName(JOBS).key(key).build();
 
-        try{
+        try {
             GetItemResponse getItemResponse = client.getItem(getItemRequest);
             LOGGER.info("Retrieved the job with job id {}", jobId);
             return getItemResponse.item();
-        }
-        catch (Exception exp){
+        } catch (Exception exp) {
             LOGGER.error("Couldn't retrieve the job with id {}", jobId + exp.toString());
             throw exp;
         }
