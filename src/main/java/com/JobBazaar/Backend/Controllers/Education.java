@@ -35,18 +35,17 @@ public class Education {
         if (addedEducation) {
             return new ResponseEntity<>("Education saved successfully", HttpStatus.OK);
         }
-            return new ResponseEntity<>("Education could not be saved", HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>("Education could not be saved", HttpStatus.BAD_REQUEST);
     }
 
     @GetMapping("/get/{email}")
     public ResponseEntity<EducationDto> getEducation(@PathVariable String email) {
         LOGGER.info("Received request to retrieve education");
-        System.out.println(email);
         EducationDto educationDto = educationService.getEducation(email);
         if (educationDto != null) {
             return ResponseEntity.ok(educationDto);
         }
-            return ResponseEntity.notFound().build();
+        return ResponseEntity.notFound().build();
     }
 
     @PatchMapping("/update")
@@ -67,6 +66,6 @@ public class Education {
         if (deletedEducation) {
             return new ResponseEntity<>("Education deleted successfully", HttpStatus.OK);
         }
-            return new ResponseEntity<>("Education could not be deleted", HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>("Education could not be deleted", HttpStatus.BAD_REQUEST);
     }
 }
