@@ -41,7 +41,6 @@ public class Work {
     @GetMapping("/get/{email}")
     public ResponseEntity<WorkDto> getWorkExperience(@PathVariable String email) {
         LOGGER.info("Received request to retrieve work experience");
-        System.out.println(email);
         WorkDto workDto = workService.getWorkExperience(email);
         if (workDto != null) {
             return ResponseEntity.ok(workDto);

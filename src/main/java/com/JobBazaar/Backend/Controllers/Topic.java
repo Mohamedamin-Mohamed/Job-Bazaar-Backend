@@ -32,9 +32,8 @@ public class Topic {
         final CreateTopicRequest createTopicRequest = CreateTopicRequest.builder().name(topic).build();
         final CreateTopicResponse topicResponse = snsClient.createTopic(createTopicRequest);
         if (topicResponse.sdkHttpResponse().isSuccessful()) {
-            System.out.println("Topic created successfully");
+            LOGGER.info("Topic created successfully!");
             userService.saveTopicArn(topic, topicResponse.topicArn());
-            System.out.println("Topic ARN: " + topicResponse.topicArn());
         } else {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, topicResponse.sdkHttpResponse().statusText().orElse("Cannot create topic " + topic));
         }

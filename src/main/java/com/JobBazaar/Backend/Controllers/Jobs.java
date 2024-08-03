@@ -2,6 +2,7 @@ package com.JobBazaar.Backend.Controllers;
 
 import com.JobBazaar.Backend.Dto.JobPostRequest;
 import com.JobBazaar.Backend.Services.JobService;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,7 +23,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/jobs")
 public class Jobs {
-    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(Jobs.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(Login.class);
 
     private final JobService jobService;
 
