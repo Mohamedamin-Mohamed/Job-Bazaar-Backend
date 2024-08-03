@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
+import software.amazon.awssdk.services.dynamodb.model.GetItemRequest;
+import software.amazon.awssdk.services.dynamodb.model.GetItemResponse;
 import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.PutItemResponse;
 import software.amazon.awssdk.services.dynamodb.model.QueryRequest;
@@ -68,7 +70,6 @@ public class JobRepository {
 
             List<Map<String, AttributeValue>> jobsMap = new ArrayList<>();
             List<Map<String, AttributeValue>> items = queryResponse.items();
-            System.out.println("Items is {}".concat(items.toString()));
             for(Map<String, AttributeValue> item : items){
                 jobsMap.add(item);
             }
@@ -76,6 +77,26 @@ public class JobRepository {
         }
         catch (Exception exp){
             LOGGER.error("Couldn't retrieve uploaded jobs {}", exp.toString());
+            throw exp;
+        }
+    }
+
+    public Map<String, AttributeValue> getJobsById(String employerEmail, String jobId){
+        LOGGER.info("Retrieving job related to job id {}", jobId);
+
+        Map<String, AttributeValue> key = new HashMap<>();
+        key.put("employerEmail", AttributeValue.builder().s(employerEmail).build());
+        key.put("jobId", AttributeValue.builder().s(jobId).build());
+
+        GetItemRequest getItemRequest = GetItemRequest.builder().tableName(JOBS).key(key).build();
+
+        try{
+            GetItemResponse getItemResponse = client.getItem(getItemRequest);
+            LOGGER.info("Retrieved the job with job id {}", jobId);
+            return getItemResponse.item();
+        }
+        catch (Exception exp){
+            LOGGER.error("Couldn't retrieve the job with id {}", jobId + exp.toString());
             throw exp;
         }
     }
