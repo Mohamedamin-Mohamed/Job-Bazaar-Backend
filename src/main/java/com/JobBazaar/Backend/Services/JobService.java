@@ -39,6 +39,9 @@ public class JobService {
         }
     }
 
+    public List<Map<String, AttributeValue>> getAvailableJobs(){
+        return jobRepository.getAvailableJobs();
+    }
     public List<Map<String, AttributeValue>> getJobsByEmployerEmail(String employerEmail) {
         return jobRepository.getJobsByEmployerEmail(employerEmail);
     }
