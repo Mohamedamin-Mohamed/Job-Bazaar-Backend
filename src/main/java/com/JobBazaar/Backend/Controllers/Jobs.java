@@ -43,6 +43,24 @@ public class Jobs {
         }
         return new ResponseEntity<>("Couldn't create job", HttpStatus.BAD_REQUEST);
     }
+    @GetMapping("/")
+    public ResponseEntity<List<Map<String, String>>> getAvailableJobs(){
+        LOGGER.info("Received request to retrieve all available jobs");
+        List<Map<String, String>> availableJobs = new ArrayList<>();
+
+        List<Map<String, AttributeValue>> jobsMap = jobService.getAvailableJobs();
+        if(jobsMap != null && !jobsMap.isEmpty()){
+            for(Map<String, AttributeValue> jobsAttributes : jobsMap){
+                Map<String, String> jobMap = new HashMap<>();
+                for (Map.Entry<String, AttributeValue> entry : jobsAttributes.entrySet()) {
+                    jobMap.put(entry.getKey(), entry.getValue().s());
+                }
+                availableJobs.add(jobMap);
+            }
+            return ResponseEntity.ok(availableJobs);
+        }
+        return ResponseEntity.badRequest().build();
+    }
 
     @GetMapping("/employer/{employerEmail}")
     public ResponseEntity<List<Map<String, String>>> getUploadedJobsByEmployerEmail(@PathVariable String employerEmail){

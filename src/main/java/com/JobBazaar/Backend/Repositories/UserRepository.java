@@ -51,6 +51,7 @@ public class UserRepository {
     public boolean addUser(AppUser user) {
         LOGGER.info("Adding user: " + user.toString());
         Map<String, AttributeValue> item = itemMapper.toDynamoDbItemMap(user);
+        System.out.println(item);
         PutItemRequest request = PutItemRequest.builder().tableName(USERS).item(item).build();
         try {
             PutItemResponse response = client.putItem(request);

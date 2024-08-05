@@ -14,6 +14,8 @@ import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.PutItemResponse;
 import software.amazon.awssdk.services.dynamodb.model.QueryRequest;
 import software.amazon.awssdk.services.dynamodb.model.QueryResponse;
+import software.amazon.awssdk.services.dynamodb.model.ScanRequest;
+import software.amazon.awssdk.services.dynamodb.model.ScanResponse;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -51,6 +53,23 @@ public class JobRepository {
         }
     }
 
+    public List<Map<String, AttributeValue>> getAvailableJobs(){
+        LOGGER.info("Retrieving available jobs");
+
+        ScanRequest scanRequest = ScanRequest.builder().tableName(JOBS).build();
+
+        try{
+            ScanResponse scanResponse = client.scan(scanRequest);
+            LOGGER.info("Retrieved available jobs");
+            List<Map<String, AttributeValue>> items = scanResponse.items();
+            return new ArrayList<>(items);
+        }
+        catch (Exception exp){
+            LOGGER.error("Couldn't retrieve available jobs {}", exp.toString());
+            throw exp;
+        }
+    }
+
     public List<Map<String, AttributeValue>> getJobsByEmployerEmail(String employerEmail) {
         LOGGER.info("Getting jobs uploaded by employer with email {}", employerEmail);
 
@@ -66,12 +85,8 @@ public class JobRepository {
         try {
             QueryResponse queryResponse = client.query(queryRequest);
 
-            List<Map<String, AttributeValue>> jobsMap = new ArrayList<>();
             List<Map<String, AttributeValue>> items = queryResponse.items();
-            for (Map<String, AttributeValue> item : items) {
-                jobsMap.add(item);
-            }
-            return jobsMap;
+            return new ArrayList<>(items);
         } catch (Exception exp) {
             LOGGER.error("Couldn't retrieve uploaded jobs {}", exp.toString());
             throw exp;
