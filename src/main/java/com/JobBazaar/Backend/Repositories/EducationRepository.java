@@ -3,6 +3,8 @@ package com.JobBazaar.Backend.Repositories;
 import com.JobBazaar.Backend.Dto.EducationDto;
 import com.JobBazaar.Backend.Mappers.DynamoDbItemMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
@@ -19,7 +21,6 @@ import software.amazon.awssdk.services.dynamodb.model.UpdateItemResponse;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Logger;
 
 @Repository
 public class EducationRepository {
@@ -28,7 +29,7 @@ public class EducationRepository {
     private final DynamoDbItemMapper dynamoDbItemMapper;
 
     private final String EDUCATION = "Education";
-    private final Logger LOGGER = Logger.getLogger(EducationRepository.class.getName());
+    private final Logger LOGGER = LoggerFactory.getLogger(EducationRepository.class);
 
     public EducationRepository(DynamoDbClient client, DynamoDbItemMapper dynamoDbItemMapper) {
         this.client = client;
@@ -42,10 +43,10 @@ public class EducationRepository {
         PutItemRequest putItemRequest = PutItemRequest.builder().tableName(EDUCATION).item(item).build();
         try {
             PutItemResponse putItemResponse = client.putItem(putItemRequest);
-            LOGGER.info("Added new education: " + putItemResponse.toString());
+            LOGGER.info("Added new education: {}", putItemResponse.toString());
             return putItemResponse.sdkHttpResponse().isSuccessful();
         } catch (DynamoDbException exp) {
-            LOGGER.warning("Education couldn't be created" + exp.getMessage());
+            LOGGER.error("Education couldn't be created: {}", exp.getMessage());
             throw exp;
         }
     }
@@ -56,13 +57,13 @@ public class EducationRepository {
         key = dynamoDbItemMapper.toDynamoDbItemMap(educationDto);
 
         UpdateItemRequest updateItemRequest = UpdateItemRequest.builder().tableName(EDUCATION).key(key).build();
-        LOGGER.info("Updating " + updateItemRequest.toString());
+        LOGGER.info("Updating {}", updateItemRequest.toString());
         try {
             UpdateItemResponse updateItemResponse = client.updateItem(updateItemRequest);
-            LOGGER.info("Updated education: " + updateItemResponse.toString());
+            LOGGER.info("Updated education: {}", updateItemResponse.toString());
             return updateItemResponse.sdkHttpResponse().isSuccessful();
         } catch (DynamoDbException exp) {
-            LOGGER.warning("Education couldn't be updated" + exp.getMessage());
+            LOGGER.error("Education couldn't be updated: {}", exp.getMessage());
             throw exp;
         }
     }
@@ -75,10 +76,10 @@ public class EducationRepository {
         DeleteItemRequest deleteItemRequest = DeleteItemRequest.builder().key(key).tableName(EDUCATION).build();
         try {
             DeleteItemResponse deleteItemResponse = client.deleteItem(deleteItemRequest);
-            LOGGER.info("Deleted education: " + deleteItemResponse.toString());
+            LOGGER.info("Deleted education: {}", deleteItemResponse.toString());
             return deleteItemResponse.sdkHttpResponse().isSuccessful();
         } catch (DynamoDbException exp) {
-            LOGGER.warning("Education couldn't be deleted" + exp.getMessage());
+            LOGGER.error("Education couldn't be deleted {}", exp.getMessage());
             throw exp;
         }
     }
@@ -92,10 +93,10 @@ public class EducationRepository {
 
         try {
             GetItemResponse getItemResponse = client.getItem(getItemRequest);
-            LOGGER.info("Retrieved education: " + getItemResponse.toString());
+            LOGGER.info("Retrieved education: {}", getItemResponse.toString());
             return getEducationDto(getItemResponse);
         } catch (DynamoDbException exp) {
-            LOGGER.warning("Education couldn't be retrieved" + exp.getMessage());
+            LOGGER.error("Education couldn't be retrieved: {}", exp.getMessage());
             throw exp;
         }
     }
