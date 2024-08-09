@@ -1,5 +1,6 @@
 package com.JobBazaar.Backend.Mappers;
 
+import com.JobBazaar.Backend.Dto.ApplicationDto;
 import com.JobBazaar.Backend.Dto.EducationDto;
 import com.JobBazaar.Backend.Dto.AppUser;
 import com.JobBazaar.Backend.Dto.JobPostRequest;
@@ -79,5 +80,38 @@ public class DynamoDbItemMapper {
             item.put("description", AttributeValue.builder().s(jobPostRequest.getDescription()).build());
             item.put("requirements", AttributeValue.builder().s(jobPostRequest.getRequirements()).build());
         return item;
+    }
+
+    public Map<String, AttributeValue> toDynamoDbItemMap(ApplicationDto applicationDto, Map<String, Map<String, String>> documentDetails){
+        Map<String, AttributeValue> item = new HashMap<>();
+        item.put("applicantEmail", AttributeValue.builder().s(applicationDto.getApplicantEmail()).build());
+        item.put("jobId", AttributeValue.builder().s(applicationDto.getJobId()).build());
+        item.put("resumeName", AttributeValue.builder().s(applicationDto.getResumeName()).build());
+        item.put("country", AttributeValue.builder().s(applicationDto.getCountry()).build());
+        item.put("city", AttributeValue.builder().s(applicationDto.getCity()).build());
+        item.put("postalCode", AttributeValue.builder().s(applicationDto.getPostalCode()).build());
+        item.put("gender", AttributeValue.builder().s(applicationDto.getGender()).build());
+        item.put("nationality", AttributeValue.builder().s(applicationDto.getNationality()).build());
+        item.put("additionalDocName", AttributeValue.builder().s(applicationDto.getAdditionalDocName()).build());
+        item.put("employerContact", AttributeValue.builder().s(applicationDto.getEmployerContact()).build());
+        item.put("firstName", AttributeValue.builder().s(applicationDto.getFirstName()).build());
+        item.put("lastName", AttributeValue.builder().s(applicationDto.getLastName()).build());
+        item.put("applicationDate", AttributeValue.builder().s(applicationDto.getApplicationDate()).build());
+        if(documentDetails != null){
+            if(documentDetails.containsKey("resume")){
+                item.put("resumeDetails", convertMapToDynamoDbMap(documentDetails.get("resume")));
+            }
+            if(documentDetails.containsKey("additionalDoc")){
+                item.put("additionalDocDetails", convertMapToDynamoDbMap(documentDetails.get("additionalDoc")));
+            }
+        }
+        return item;
+    }
+    private AttributeValue convertMapToDynamoDbMap(Map<String, String> map){
+        Map<String, AttributeValue> dynamoDbMap = new HashMap<>();
+        for(Map.Entry<String, String> entry : map.entrySet()){
+            dynamoDbMap.put(entry.getKey(), AttributeValue.builder().s(entry.getValue()).build());
+        }
+        return AttributeValue.builder().m(dynamoDbMap).build();
     }
 }

@@ -3,12 +3,16 @@ package com.JobBazaar.Backend.Beans;
 import com.JobBazaar.Backend.JwtToken.JwtAuthenticationFilter;
 import com.JobBazaar.Backend.JwtToken.JwtTokenService;
 import com.JobBazaar.Backend.Mappers.DynamoDbItemMapper;
+import com.JobBazaar.Backend.Repositories.ApplicationRepository;
 import com.JobBazaar.Backend.Repositories.EducationRepository;
+import com.JobBazaar.Backend.Repositories.FilesUploadRepository;
 import com.JobBazaar.Backend.Repositories.JobRepository;
 import com.JobBazaar.Backend.Repositories.SnsRepository;
 import com.JobBazaar.Backend.Repositories.UserRepository;
 import com.JobBazaar.Backend.Repositories.WorkRepository;
+import com.JobBazaar.Backend.Services.ApplicationService;
 import com.JobBazaar.Backend.Services.EducationService;
+import com.JobBazaar.Backend.Services.FilesUploadService;
 import com.JobBazaar.Backend.Services.ImageSearchService;
 import com.JobBazaar.Backend.Services.JobService;
 import com.JobBazaar.Backend.Services.UserService;
@@ -34,6 +38,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.client.RestTemplate;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
+import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.sesv2.SesV2Client;
 import software.amazon.awssdk.services.sns.SnsClient;
 
@@ -95,23 +100,48 @@ public class AppConfig {
     }
 
     @Bean
-    public JobService jobService(){
-        return  new JobService(jobRepository(), shortUUIDGenerator());
+    public JobService jobService() {
+        return new JobService(jobRepository(), shortUUIDGenerator());
     }
 
     @Bean
-    public JobRepository jobRepository(){
+    public JobRepository jobRepository() {
         return new JobRepository(dynamoDbClient(), dynamoDbItemMapper());
     }
 
     @Bean
-    public ShortUUIDGenerator shortUUIDGenerator(){
+    public ApplicationService applicationService() {
+        return new ApplicationService(applicationRepository());
+    }
+
+    @Bean
+    public ApplicationRepository applicationRepository() {
+        return new ApplicationRepository(dynamoDbClient(), dynamoDbItemMapper());
+    }
+
+    @Bean
+    public ShortUUIDGenerator shortUUIDGenerator() {
         return new ShortUUIDGenerator();
+    }
+
+    @Bean
+    public FilesUploadService filesUploadService(){
+        return new FilesUploadService(filesUploadRepository());
+    }
+
+    @Bean
+    public FilesUploadRepository filesUploadRepository(){
+        return new FilesUploadRepository(s3Client());
     }
 
     @Bean
     public SnsClient buildSnsClient() {
         return SnsClient.builder().region(Region.US_EAST_2).build();
+    }
+
+    @Bean
+    public S3Client s3Client(){
+        return S3Client.builder().region(Region.US_EAST_2).build();
     }
 
     @Bean
