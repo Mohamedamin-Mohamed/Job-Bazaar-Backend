@@ -6,6 +6,9 @@ import com.JobBazaar.Backend.Services.FilesUploadService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,6 +26,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
+import static org.springframework.http.ResponseEntity.notFound;
 
 @RestController
 @RequestMapping("/api/applications/")
@@ -62,6 +67,26 @@ public class Application {
         }
         Map<String, Map<String, String>> fileUploadedToS3Info = filesUploadService.uploadFile(map, fileNames);
         boolean applicationAdded = applicationService.addApplication(applicationDto, fileUploadedToS3Info);
+      
+
+        if(applicationAdded){
+            return new ResponseEntity<>("Application added successfully", HttpStatus.OK);
+        }
+
+        return new ResponseEntity<>("Something went wrong, please try again!!!", HttpStatus.BAD_REQUEST);
+    }
+
+    @GetMapping("/users/{applicantEmail}")
+    public ResponseEntity<List<Map<String, String>>> getJobsAppliedTo(@PathVariable final String applicantEmail){
+        LOGGER.info("Received request to retrieve jobs applied to by {}", applicantEmail);
+
+        List<Map<String, String>> jobsAppliedTo = applicationService.getJobsAppliedTo(applicantEmail);
+        if(!jobsAppliedTo.isEmpty()){
+            return ResponseEntity.ok(jobsAppliedTo);
+        }
+
+        return ResponseEntity.noContent().build();
+    }
 
         return ResponseEntity.ok("Hey there");
     }

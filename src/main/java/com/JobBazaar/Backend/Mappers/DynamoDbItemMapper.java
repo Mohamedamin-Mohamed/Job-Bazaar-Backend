@@ -10,9 +10,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
 import java.text.ParseException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Logger;
 
 public class DynamoDbItemMapper {
@@ -66,7 +64,6 @@ public class DynamoDbItemMapper {
         item.put("createdAt", AttributeValue.builder().s(passwordResetDto.getCreatedAt()).build());
         return item;
     }
-
         public Map<String, AttributeValue> toDynamoDbItemMap(JobPostRequest jobPostRequest){
             Map<String, AttributeValue> item = new HashMap<>();
             item.put("employerEmail", AttributeValue.builder().s(jobPostRequest.getEmployerEmail()).build());
@@ -107,11 +104,35 @@ public class DynamoDbItemMapper {
         }
         return item;
     }
+
     private AttributeValue convertMapToDynamoDbMap(Map<String, String> map){
         Map<String, AttributeValue> dynamoDbMap = new HashMap<>();
         for(Map.Entry<String, String> entry : map.entrySet()){
             dynamoDbMap.put(entry.getKey(), AttributeValue.builder().s(entry.getValue()).build());
         }
         return AttributeValue.builder().m(dynamoDbMap).build();
+    }
+
+    public List<Map<String, String>> toDynamoDbItemMap(List<Map<String, AttributeValue>> listJobAppliedTo){
+        List<Map<String, String>> jobsAppliedTo = new ArrayList<>();
+
+       for(Map<String, AttributeValue> map : listJobAppliedTo){
+           Map<String, String> mapToString = new HashMap<>();
+
+           for(Map.Entry<String, AttributeValue> jobsApplied : map.entrySet()){
+               mapToString.put(jobsApplied.getKey(), jobsApplied.getValue().s());
+           }
+           jobsAppliedTo.add(mapToString);
+       }
+        return jobsAppliedTo;
+    }
+
+    public Map<String, String> toDynamoDbItemMap(Map<String, AttributeValue> map){
+        Map<String, String> jobByIdMap = new HashMap<>();
+
+        for(Map.Entry<String, AttributeValue> entry : map.entrySet()){
+            jobByIdMap.put(entry.getKey(), entry.getValue().s());
+        }
+        return jobByIdMap;
     }
 }
