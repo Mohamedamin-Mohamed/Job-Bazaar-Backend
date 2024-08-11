@@ -53,7 +53,7 @@ public class JobRepository {
         }
     }
 
-    public List<Map<String, AttributeValue>> getAvailableJobs(){
+    public List<Map<String, String>> getAvailableJobs(){
         LOGGER.info("Retrieving available jobs");
 
         ScanRequest scanRequest = ScanRequest.builder().tableName(JOBS).build();
@@ -61,8 +61,11 @@ public class JobRepository {
         try{
             ScanResponse scanResponse = client.scan(scanRequest);
             LOGGER.info("Retrieved available jobs");
-            List<Map<String, AttributeValue>> items = scanResponse.items();
-            return new ArrayList<>(items);
+
+            if(!scanResponse.items().isEmpty()){
+                return dynamoDbItemMapper.toDynamoDbItemMap(scanResponse.items());
+            }
+            return new ArrayList<>();
         }
         catch (Exception exp){
             LOGGER.error("Couldn't retrieve available jobs {}", exp.toString());
@@ -70,7 +73,7 @@ public class JobRepository {
         }
     }
 
-    public List<Map<String, AttributeValue>> getJobsByEmployerEmail(String employerEmail) {
+    public List<Map<String, String>> getJobsByEmployerEmail(String employerEmail) {
         LOGGER.info("Getting jobs uploaded by employer with email {}", employerEmail);
 
         String keyConditionExpression = "employerEmail=:empEmail";
@@ -84,16 +87,17 @@ public class JobRepository {
 
         try {
             QueryResponse queryResponse = client.query(queryRequest);
-
-            List<Map<String, AttributeValue>> items = queryResponse.items();
-            return new ArrayList<>(items);
+            if(!queryResponse.items().isEmpty()){
+                return dynamoDbItemMapper.toDynamoDbItemMap(queryResponse.items());
+            }
+            return new ArrayList<>();
         } catch (Exception exp) {
             LOGGER.error("Couldn't retrieve uploaded jobs {}", exp.toString());
             throw exp;
         }
     }
 
-    public Map<String, AttributeValue> getJobsById(String employerEmail, String jobId) {
+    public Map<String, String> getJobsById(String employerEmail, String jobId) {
         LOGGER.info("Retrieving job related to job id {}", jobId);
 
         Map<String, AttributeValue> key = new HashMap<>();
@@ -105,7 +109,11 @@ public class JobRepository {
         try {
             GetItemResponse getItemResponse = client.getItem(getItemRequest);
             LOGGER.info("Retrieved the job with job id {}", jobId);
-            return getItemResponse.item();
+
+            if(!getItemResponse.item().isEmpty()) {
+                return dynamoDbItemMapper.toDynamoDbItemMap(getItemResponse.item());
+            }
+            return new HashMap<>();
         } catch (Exception exp) {
             LOGGER.error("Couldn't retrieve the job with id {}", jobId + exp.toString());
             throw exp;
