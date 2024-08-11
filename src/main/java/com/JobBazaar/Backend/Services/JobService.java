@@ -39,14 +39,14 @@ public class JobService {
         }
     }
 
-    public List<Map<String, AttributeValue>> getAvailableJobs(){
+    public List<Map<String, String>> getAvailableJobs(){
         return jobRepository.getAvailableJobs();
     }
-    public List<Map<String, AttributeValue>> getJobsByEmployerEmail(String employerEmail) {
+    public List<Map<String, String>> getJobsByEmployerEmail(String employerEmail) {
         return jobRepository.getJobsByEmployerEmail(employerEmail);
     }
 
-    public Map<String, AttributeValue> getJobsById(String employerEmail, String jobId) {
+    public Map<String, String> getJobsById(String employerEmail, String jobId) {
         return jobRepository.getJobsById(employerEmail, jobId);
     }
 }
