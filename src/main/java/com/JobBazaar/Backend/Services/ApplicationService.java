@@ -4,7 +4,6 @@ import com.JobBazaar.Backend.Dto.ApplicationDto;
 import com.JobBazaar.Backend.Repositories.ApplicationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Map;
 

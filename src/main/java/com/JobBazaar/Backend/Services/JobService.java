@@ -38,11 +38,12 @@ public class JobService {
             return false;
         }
     }
-
+  
     public List<Map<String, String>> getAvailableJobs(){
         return jobRepository.getAvailableJobs();
     }
     public List<Map<String, String>> getJobsByEmployerEmail(String employerEmail) {
+
         return jobRepository.getJobsByEmployerEmail(employerEmail);
     }
 
