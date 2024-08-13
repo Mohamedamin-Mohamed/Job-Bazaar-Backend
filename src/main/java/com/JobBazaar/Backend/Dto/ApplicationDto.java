@@ -15,6 +15,15 @@ public class ApplicationDto {
     private String position;
     private String firstName;
     private String lastName;
+    private String applicationStatus;
+
+    public void setApplicationStatus(String applicationStatus) {
+        this.applicationStatus = applicationStatus;
+    }
+
+    public String getApplicationStatus() {
+        return applicationStatus;
+    }
 
     public void setPosition(String position) {
         this.position = position;
