@@ -95,6 +95,7 @@ public class DynamoDbItemMapper {
         item.put("firstName", AttributeValue.builder().s(applicationDto.getFirstName()).build());
         item.put("lastName", AttributeValue.builder().s(applicationDto.getLastName()).build());
         item.put("applicationDate", AttributeValue.builder().s(applicationDto.getApplicationDate()).build());
+        item.put("applicationStatus", AttributeValue.builder().s(applicationDto.getApplicationStatus()).build());
         if(documentDetails != null){
             if(documentDetails.containsKey("resume")){
                 item.put("resumeDetails", convertMapToDynamoDbMap(documentDetails.get("resume")));
