@@ -83,6 +83,7 @@ public class DynamoDbItemMapper {
         Map<String, AttributeValue> item = new HashMap<>();
         item.put("applicantEmail", AttributeValue.builder().s(applicationDto.getApplicantEmail()).build());
         item.put("jobId", AttributeValue.builder().s(applicationDto.getJobId()).build());
+        item.put("position", AttributeValue.builder().s(applicationDto.getPosition()).build());
         item.put("resumeName", AttributeValue.builder().s(applicationDto.getResumeName()).build());
         item.put("country", AttributeValue.builder().s(applicationDto.getCountry()).build());
         item.put("city", AttributeValue.builder().s(applicationDto.getCity()).build());
@@ -102,6 +103,7 @@ public class DynamoDbItemMapper {
                 item.put("additionalDocDetails", convertMapToDynamoDbMap(documentDetails.get("additionalDoc")));
             }
         }
+        System.out.println(item.toString());
         return item;
     }
 
@@ -114,6 +116,8 @@ public class DynamoDbItemMapper {
     }
 
     public List<Map<String, String>> toDynamoDbItemMap(List<Map<String, AttributeValue>> listJobAppliedTo){
+        System.out.println(listJobAppliedTo);
+
         List<Map<String, String>> jobsAppliedTo = new ArrayList<>();
 
        for(Map<String, AttributeValue> map : listJobAppliedTo){
