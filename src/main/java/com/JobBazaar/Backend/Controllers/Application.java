@@ -85,9 +85,6 @@ public class Application {
             return ResponseEntity.ok(jobsAppliedTo);
         }
 
-        return ResponseEntity.noContent().build();
-    }
-
-        return ResponseEntity.ok("Hey there");
+        return new ResponseEntity<>(jobsAppliedTo, HttpStatus.NOT_FOUND);
     }
 }
