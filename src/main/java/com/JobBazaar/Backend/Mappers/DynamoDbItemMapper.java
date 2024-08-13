@@ -103,7 +103,6 @@ public class DynamoDbItemMapper {
                 item.put("additionalDocDetails", convertMapToDynamoDbMap(documentDetails.get("additionalDoc")));
             }
         }
-        System.out.println(item.toString());
         return item;
     }
 
@@ -116,8 +115,6 @@ public class DynamoDbItemMapper {
     }
 
     public List<Map<String, String>> toDynamoDbItemMap(List<Map<String, AttributeValue>> listJobAppliedTo){
-        System.out.println(listJobAppliedTo);
-
         List<Map<String, String>> jobsAppliedTo = new ArrayList<>();
 
        for(Map<String, AttributeValue> map : listJobAppliedTo){
