@@ -83,6 +83,7 @@ public class DynamoDbItemMapper {
         Map<String, AttributeValue> item = new HashMap<>();
         item.put("applicantEmail", AttributeValue.builder().s(applicationDto.getApplicantEmail()).build());
         item.put("jobId", AttributeValue.builder().s(applicationDto.getJobId()).build());
+        item.put("position", AttributeValue.builder().s(applicationDto.getPosition()).build());
         item.put("resumeName", AttributeValue.builder().s(applicationDto.getResumeName()).build());
         item.put("country", AttributeValue.builder().s(applicationDto.getCountry()).build());
         item.put("city", AttributeValue.builder().s(applicationDto.getCity()).build());

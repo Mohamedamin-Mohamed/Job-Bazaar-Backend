@@ -12,8 +12,17 @@ public class ApplicationDto {
     private String applicationDate;
     private String applicantEmail;
     private String jobId;
+    private String position;
     private String firstName;
     private String lastName;
+
+    public void setPosition(String position) {
+        this.position = position;
+    }
+
+    public String getPosition() {
+        return position;
+    }
 
     public void setApplicantEmail(String applicantEmail) {
         this.applicantEmail = applicantEmail;

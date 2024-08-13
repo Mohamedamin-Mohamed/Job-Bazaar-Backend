@@ -40,7 +40,7 @@ public class Login {
         //first check if there is a user with the above email
         boolean userExists = userService.userExists(loginRequest);
 
-        //if true check if the password matches with the users email
+        //if true, check if the password matches with the users email
         if (userExists) {
             //now check if the password matches the email
             boolean passwordMatch = userService.passwordMatches(loginRequest);
