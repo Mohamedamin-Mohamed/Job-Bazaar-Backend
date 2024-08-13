@@ -78,7 +78,7 @@ public class Application {
 
     @GetMapping("/users/{applicantEmail}")
     public ResponseEntity<List<Map<String, String>>> getJobsAppliedTo(@PathVariable final String applicantEmail){
-        LOGGER.info("Received request to retrieve jobs applied to by {}", applicantEmail);
+        LOGGER.info("Received request t retrieve jobs applied to by {}", applicantEmail);
 
         List<Map<String, String>> jobsAppliedTo = applicationService.getJobsAppliedTo(applicantEmail);
         if(!jobsAppliedTo.isEmpty()){
