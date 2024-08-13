@@ -75,4 +75,10 @@ public class Application {
 
         return new ResponseEntity<>(jobsAppliedTo, HttpStatus.NOT_FOUND);
     }
+
+    @GetMapping("/status")
+    public boolean checkIfApplied(@RequestParam("applicantEmail") String applicantEmail, @RequestParam String jobId) {
+        LOGGER.info("Received request to check if {} has applied to job with id {}", applicantEmail, jobId);
+        return applicationService.hasApplied(applicantEmail, jobId);
+    }
 }
