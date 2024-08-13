@@ -19,6 +19,7 @@ import com.JobBazaar.Backend.Services.UserService;
 import com.JobBazaar.Backend.Services.WorkService;
 import com.JobBazaar.Backend.Utils.PasswordUtils;
 import com.JobBazaar.Backend.Utils.ShortUUIDGenerator;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -36,6 +37,10 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.client.RestTemplate;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.AwsCredentials;
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -49,9 +54,23 @@ public class AppConfig {
     @Value("${security.jwt.secret.key}")
     private String jwtSecretKey;
 
+    @Value("${aws.accessKeyId}")
+    private String accessKey;
+
+    @Value("${aws.secretAccessKey}")
+    private String secretKey;
+
+    @Value("${aws.region}")
+    private String region;
+
+    @Bean
+    public AwsCredentialsProvider awsCredentialsProvider() {
+        return ()-> AwsBasicCredentials.create(accessKey, secretKey);
+    }
+
     @Bean
     public DynamoDbClient dynamoDbClient() {
-        return DynamoDbClient.builder().region(Region.US_EAST_2).build();
+        return DynamoDbClient.builder().region(Region.of(region)).credentialsProvider(awsCredentialsProvider()).build();
     }
 
     @Bean
@@ -136,17 +155,17 @@ public class AppConfig {
 
     @Bean
     public SnsClient buildSnsClient() {
-        return SnsClient.builder().region(Region.US_EAST_2).build();
+        return SnsClient.builder().region(Region.of(region)).credentialsProvider(awsCredentialsProvider()).build();
     }
 
     @Bean
     public S3Client s3Client(){
-        return S3Client.builder().region(Region.US_EAST_2).build();
+        return S3Client.builder().region(Region.of(region)).credentialsProvider(awsCredentialsProvider()).build();
     }
 
     @Bean
     public SesV2Client buildSesV2Client() {
-        return SesV2Client.builder().region(Region.US_EAST_2).build();
+        return SesV2Client.builder().region(Region.of(region)).credentialsProvider(awsCredentialsProvider()).build();
     }
 
     @Bean
