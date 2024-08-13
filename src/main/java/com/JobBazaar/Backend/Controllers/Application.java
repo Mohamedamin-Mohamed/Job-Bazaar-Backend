@@ -9,25 +9,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import software.amazon.awssdk.enhanced.dynamodb.internal.AttributeValues;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-
-import static org.springframework.http.ResponseEntity.notFound;
 
 @RestController
 @RequestMapping("/api/applications/")
@@ -47,7 +35,7 @@ public class Application {
     public ResponseEntity<String> addApplication(@ModelAttribute ApplicationDto applicationDto,
                                                  @RequestPart("resumeFile") MultipartFile resumeFile,
                                                  @RequestPart(value = "additionalDocFile", required = false) MultipartFile additionalDocFile
-                                                 ) throws IOException {
+    ) throws IOException {
         LOGGER.info("Received request to add a new application");
 
 
@@ -67,7 +55,7 @@ public class Application {
         }
         Map<String, Map<String, String>> fileUploadedToS3Info = filesUploadService.uploadFile(map, fileNames);
         boolean applicationAdded = applicationService.addApplication(applicationDto, fileUploadedToS3Info);
-      
+
 
         if(applicationAdded){
             return new ResponseEntity<>("Application added successfully", HttpStatus.OK);
@@ -77,11 +65,11 @@ public class Application {
     }
 
     @GetMapping("/users/{applicantEmail}")
-    public ResponseEntity<List<Map<String, String>>> getJobsAppliedTo(@PathVariable final String applicantEmail){
+    public ResponseEntity<List<Map<String, String>>> getJobsAppliedTo(@PathVariable final String applicantEmail) {
         LOGGER.info("Received request t retrieve jobs applied to by {}", applicantEmail);
 
         List<Map<String, String>> jobsAppliedTo = applicationService.getJobsAppliedTo(applicantEmail);
-        if(!jobsAppliedTo.isEmpty()){
+        if (!jobsAppliedTo.isEmpty()) {
             return ResponseEntity.ok(jobsAppliedTo);
         }
 

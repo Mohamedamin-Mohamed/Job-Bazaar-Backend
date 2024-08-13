@@ -61,7 +61,6 @@ public class ApplicationRepository {
 
             if (queryResponse != null && !queryResponse.items().isEmpty()) {
                 LOGGER.info("Retrieved all jobs applied by {}", applicantEmail);
-
                 return dynamoDbItemMapper.toDynamoDbItemMap(queryResponse.items());
             }
             return new ArrayList<>();
