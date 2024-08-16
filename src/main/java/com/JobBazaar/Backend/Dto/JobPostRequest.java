@@ -11,6 +11,15 @@ public class JobPostRequest {
     private String jobType;
     private String description;
     private String requirements;
+    private String postedDate;
+
+    public void setPostedDate(String postedDate) {
+        this.postedDate = postedDate;
+    }
+
+    public String getPostedDate() {
+        return postedDate;
+    }
 
     public String getJobId() {
         return jobId;
