@@ -11,11 +11,20 @@ public class ApplicationDto {
     private String postalCode;
     private String applicationDate;
     private String applicantEmail;
+    private String employerEmail;
     private String jobId;
     private String position;
     private String firstName;
     private String lastName;
     private String applicationStatus;
+
+    public void setEmployerEmail(String employerEmail) {
+        this.employerEmail = employerEmail;
+    }
+
+    public String getEmployerEmail() {
+        return employerEmail;
+    }
 
     public void setApplicationStatus(String applicationStatus) {
         this.applicationStatus = applicationStatus;
