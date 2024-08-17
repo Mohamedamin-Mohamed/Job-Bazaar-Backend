@@ -1,11 +1,6 @@
 package com.JobBazaar.Backend.Mappers;
 
-import com.JobBazaar.Backend.Dto.ApplicationDto;
-import com.JobBazaar.Backend.Dto.EducationDto;
-import com.JobBazaar.Backend.Dto.AppUser;
-import com.JobBazaar.Backend.Dto.JobPostRequest;
-import com.JobBazaar.Backend.Dto.PasswordResetDto;
-import com.JobBazaar.Backend.Dto.WorkDto;
+import com.JobBazaar.Backend.Dto.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
@@ -54,7 +49,7 @@ public class DynamoDbItemMapper {
         return item;
     }
 
-    public  Map<String, AttributeValue> toDynamoDbItemMap(PasswordResetDto passwordResetDto, String hashedPassword){
+    public Map<String, AttributeValue> toDynamoDbItemMap(PasswordResetDto passwordResetDto, String hashedPassword) {
         Map<String, AttributeValue> item = new HashMap<>();
         item.put("email", AttributeValue.builder().s(passwordResetDto.getEmail()).build());
         item.put("hashedPassword", AttributeValue.builder().s(hashedPassword).build());
@@ -64,24 +59,27 @@ public class DynamoDbItemMapper {
         item.put("createdAt", AttributeValue.builder().s(passwordResetDto.getCreatedAt()).build());
         return item;
     }
-        public Map<String, AttributeValue> toDynamoDbItemMap(JobPostRequest jobPostRequest){
-            Map<String, AttributeValue> item = new HashMap<>();
-            item.put("employerEmail", AttributeValue.builder().s(jobPostRequest.getEmployerEmail()).build());
-            item.put("jobId", AttributeValue.builder().s(jobPostRequest.getJobId()).build());
-            item.put("company", AttributeValue.builder().s(jobPostRequest.getCompany()).build());
-            item.put("position", AttributeValue.builder().s(jobPostRequest.getPosition()).build());
-            item.put("workPlace", AttributeValue.builder().s(jobPostRequest.getWorkPlace()).build());
-            item.put("location", AttributeValue.builder().s(jobPostRequest.getLocation()).build());
-            item.put("jobFunction", AttributeValue.builder().s(jobPostRequest.getJobFunction()).build());
-            item.put("jobType", AttributeValue.builder().s(jobPostRequest.getJobType()).build());
-            item.put("description", AttributeValue.builder().s(jobPostRequest.getDescription()).build());
-            item.put("requirements", AttributeValue.builder().s(jobPostRequest.getRequirements()).build());
+
+    public Map<String, AttributeValue> toDynamoDbItemMap(JobPostRequest jobPostRequest) {
+        Map<String, AttributeValue> item = new HashMap<>();
+        item.put("employerEmail", AttributeValue.builder().s(jobPostRequest.getEmployerEmail()).build());
+        item.put("jobId", AttributeValue.builder().s(jobPostRequest.getJobId()).build());
+        item.put("company", AttributeValue.builder().s(jobPostRequest.getCompany()).build());
+        item.put("position", AttributeValue.builder().s(jobPostRequest.getPosition()).build());
+        item.put("workPlace", AttributeValue.builder().s(jobPostRequest.getWorkPlace()).build());
+        item.put("location", AttributeValue.builder().s(jobPostRequest.getLocation()).build());
+        item.put("jobFunction", AttributeValue.builder().s(jobPostRequest.getJobFunction()).build());
+        item.put("jobType", AttributeValue.builder().s(jobPostRequest.getJobType()).build());
+        item.put("description", AttributeValue.builder().s(jobPostRequest.getDescription()).build());
+        item.put("requirements", AttributeValue.builder().s(jobPostRequest.getRequirements()).build());
+        item.put("postedDate", AttributeValue.builder().s(jobPostRequest.getPostedDate()).build());
         return item;
     }
 
-    public Map<String, AttributeValue> toDynamoDbItemMap(ApplicationDto applicationDto, Map<String, Map<String, String>> documentDetails){
+    public Map<String, AttributeValue> toDynamoDbItemMap(ApplicationDto applicationDto, Map<String, Map<String, String>> documentDetails) {
         Map<String, AttributeValue> item = new HashMap<>();
         item.put("applicantEmail", AttributeValue.builder().s(applicationDto.getApplicantEmail()).build());
+        item.put("employerEmail", AttributeValue.builder().s(applicationDto.getEmployerEmail()).build());
         item.put("jobId", AttributeValue.builder().s(applicationDto.getJobId()).build());
         item.put("position", AttributeValue.builder().s(applicationDto.getPosition()).build());
         item.put("resumeName", AttributeValue.builder().s(applicationDto.getResumeName()).build());
@@ -95,43 +93,44 @@ public class DynamoDbItemMapper {
         item.put("firstName", AttributeValue.builder().s(applicationDto.getFirstName()).build());
         item.put("lastName", AttributeValue.builder().s(applicationDto.getLastName()).build());
         item.put("applicationDate", AttributeValue.builder().s(applicationDto.getApplicationDate()).build());
-        if(documentDetails != null){
-            if(documentDetails.containsKey("resume")){
+        item.put("applicationStatus", AttributeValue.builder().s(applicationDto.getApplicationStatus()).build());
+        if (documentDetails != null) {
+            if (documentDetails.containsKey("resume")) {
                 item.put("resumeDetails", convertMapToDynamoDbMap(documentDetails.get("resume")));
             }
-            if(documentDetails.containsKey("additionalDoc")){
+            if (documentDetails.containsKey("additionalDoc")) {
                 item.put("additionalDocDetails", convertMapToDynamoDbMap(documentDetails.get("additionalDoc")));
             }
         }
         return item;
     }
 
-    private AttributeValue convertMapToDynamoDbMap(Map<String, String> map){
+    private AttributeValue convertMapToDynamoDbMap(Map<String, String> map) {
         Map<String, AttributeValue> dynamoDbMap = new HashMap<>();
-        for(Map.Entry<String, String> entry : map.entrySet()){
+        for (Map.Entry<String, String> entry : map.entrySet()) {
             dynamoDbMap.put(entry.getKey(), AttributeValue.builder().s(entry.getValue()).build());
         }
         return AttributeValue.builder().m(dynamoDbMap).build();
     }
 
-    public List<Map<String, String>> toDynamoDbItemMap(List<Map<String, AttributeValue>> listJobAppliedTo){
+    public List<Map<String, String>> toDynamoDbItemMap(List<Map<String, AttributeValue>> listJobAppliedTo) {
         List<Map<String, String>> jobsAppliedTo = new ArrayList<>();
 
-       for(Map<String, AttributeValue> map : listJobAppliedTo){
-           Map<String, String> mapToString = new HashMap<>();
+        for (Map<String, AttributeValue> map : listJobAppliedTo) {
+            Map<String, String> mapToString = new HashMap<>();
 
-           for(Map.Entry<String, AttributeValue> jobsApplied : map.entrySet()){
-               mapToString.put(jobsApplied.getKey(), jobsApplied.getValue().s());
-           }
-           jobsAppliedTo.add(mapToString);
-       }
+            for (Map.Entry<String, AttributeValue> jobsApplied : map.entrySet()) {
+                mapToString.put(jobsApplied.getKey(), jobsApplied.getValue().s());
+            }
+            jobsAppliedTo.add(mapToString);
+        }
         return jobsAppliedTo;
     }
 
-    public Map<String, String> toDynamoDbItemMap(Map<String, AttributeValue> map){
+    public Map<String, String> toDynamoDbItemMap(Map<String, AttributeValue> map) {
         Map<String, String> jobByIdMap = new HashMap<>();
 
-        for(Map.Entry<String, AttributeValue> entry : map.entrySet()){
+        for (Map.Entry<String, AttributeValue> entry : map.entrySet()) {
             jobByIdMap.put(entry.getKey(), entry.getValue().s());
         }
         return jobByIdMap;

@@ -23,4 +23,8 @@ public class ApplicationService {
     public List<Map<String, String>> getJobsAppliedTo(String applicantEmail){
         return applicationRepository.getJobsAppliedTo(applicantEmail);
     }
+
+    public boolean hasApplied(String applicantEmail, String jobId){
+        return applicationRepository.hasApplied(applicantEmail, jobId);
+    }
 }

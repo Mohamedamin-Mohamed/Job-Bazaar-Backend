@@ -21,7 +21,7 @@ public class ApplicationRepository {
     public final DynamoDbClient client;
     public final DynamoDbItemMapper dynamoDbItemMapper;
 
-    private static final String APPLICANTS = "Applicants";
+    private static final String APPLICATIONS = "Applications";
 
     @Autowired
     public ApplicationRepository(DynamoDbClient client, DynamoDbItemMapper dynamoDbItemMapper) {
@@ -33,7 +33,8 @@ public class ApplicationRepository {
         LOGGER.info("Adding application: {}", application);
         Map<String, AttributeValue> item = dynamoDbItemMapper.toDynamoDbItemMap(application, fileUploadedToS3Info);
 
-        PutItemRequest putItemRequest = PutItemRequest.builder().tableName(APPLICANTS).item(item).build();
+        PutItemRequest putItemRequest = PutItemRequest.builder().tableName(APPLICATIONS).item(item).build();
+      
         try {
             PutItemResponse putItemResponse = client.putItem(putItemRequest);
             LOGGER.info("Successfully added application");
@@ -54,7 +55,8 @@ public class ApplicationRepository {
         key.put(attributeValue, AttributeValue.builder().s(applicantEmail).build());
 
         QueryRequest queryRequest = QueryRequest.builder().keyConditionExpression(keyConditionExpression).
-                expressionAttributeValues(key).tableName(APPLICANTS).build();
+
+        expressionAttributeValues(key).tableName(APPLICATIONS).build();
 
         try {
             QueryResponse queryResponse = client.query(queryRequest);
@@ -70,6 +72,29 @@ public class ApplicationRepository {
         } catch (Exception exp) {
             LOGGER.error("Unknown error occurred {}", exp.toString());
             throw exp;
+        }
+    }
+
+    public boolean hasApplied(String applicantEmail, String jobId){
+        LOGGER.info("Checking if {} has applied to {}", applicantEmail, jobId);
+
+        Map<String, AttributeValue> key = new HashMap<>();
+        key.put("applicantEmail", AttributeValue.builder().s(applicantEmail).build());
+        key.put("jobId", AttributeValue.builder().s(jobId).build());
+
+        GetItemRequest getItemRequest = GetItemRequest.builder().tableName(APPLICATIONS).key(key).build();
+
+        try{
+            GetItemResponse getItemResponse = client.getItem(getItemRequest);
+            return  getItemResponse.hasItem();
+        }
+        catch (DynamoDbException exp) {
+            LOGGER.info("Couldn't check if {} has applied to {}", applicantEmail, jobId);
+            return false;
+        }
+        catch (Exception exp) {
+            LOGGER.error("Unknown error occurred {}", exp.toString());
+            return false;
         }
     }
 }
