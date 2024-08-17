@@ -34,6 +34,7 @@ public class ApplicationRepository {
         Map<String, AttributeValue> item = dynamoDbItemMapper.toDynamoDbItemMap(application, fileUploadedToS3Info);
 
         PutItemRequest putItemRequest = PutItemRequest.builder().tableName(APPLICATIONS).item(item).build();
+      
         try {
             PutItemResponse putItemResponse = client.putItem(putItemRequest);
             LOGGER.info("Successfully added application");
@@ -54,7 +55,8 @@ public class ApplicationRepository {
         key.put(attributeValue, AttributeValue.builder().s(applicantEmail).build());
 
         QueryRequest queryRequest = QueryRequest.builder().keyConditionExpression(keyConditionExpression).
-                expressionAttributeValues(key).tableName(APPLICATIONS).build();
+
+        expressionAttributeValues(key).tableName(APPLICATIONS).build();
 
         try {
             QueryResponse queryResponse = client.query(queryRequest);
