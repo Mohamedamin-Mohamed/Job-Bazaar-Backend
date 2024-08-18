@@ -37,8 +37,7 @@ public class WorkRepository {
 
     public boolean saveWorkExperience(WorkDto workDto) throws ParseException, JsonProcessingException {
         LOGGER.info("Saving work experience");
-        Map<String, AttributeValue> item = new HashMap<>();
-        item = dynamoDbItemMapper.toDynamoDbItemMap(workDto);
+        Map<String, AttributeValue> item = dynamoDbItemMapper.toDynamoDbItemMap(workDto);
         PutItemRequest putItemRequest = PutItemRequest.builder().tableName(WORK).item(item).build();
         try {
             PutItemResponse putItemResponse = client.putItem(putItemRequest);
