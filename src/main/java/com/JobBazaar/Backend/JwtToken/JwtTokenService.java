@@ -34,7 +34,7 @@ public class JwtTokenService {
     @Value("${security.jwt.issuer}")
     private String jwtIssuer;
 
-    private Logger LOGGER = Logger.getLogger(JwtTokenService.class.getName());
+    private final Logger LOGGER = Logger.getLogger(JwtTokenService.class.getName());
 
     public String createJwtToken(UserDto userDto){
         Instant now = Instant.now();
@@ -64,7 +64,6 @@ public class JwtTokenService {
 
             //get claims
             Map<String, Object> decodedJwtClaims = decodedJwt.getClaims();
-            System.out.println(decodedJwtClaims);
             String issuer = (String) decodedJwtClaims.get("iss");
             String subject = (String) decodedJwtClaims.get("subj");
 
