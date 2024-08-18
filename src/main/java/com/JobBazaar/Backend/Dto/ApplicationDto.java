@@ -18,6 +18,10 @@ public class ApplicationDto {
     private String lastName;
     private String applicationStatus;
 
+    public void setPosition(String position) {
+        this.position = position;
+    }
+
     public void setEmployerEmail(String employerEmail) {
         this.employerEmail = employerEmail;
     }
@@ -25,29 +29,15 @@ public class ApplicationDto {
     public String getEmployerEmail() {
         return employerEmail;
     }
-
+    public String getPosition(){
+        return position;
+    }
     public void setApplicationStatus(String applicationStatus) {
         this.applicationStatus = applicationStatus;
     }
 
     public String getApplicationStatus() {
         return applicationStatus;
-    }
-
-    public void setPosition(String position) {
-        this.position = position;
-    }
-
-    public String getPosition() {
-        return position;
-    }
-
-    public void setPosition(String position) {
-        this.position = position;
-    }
-
-    public String getPosition() {
-        return position;
     }
 
     public void setApplicantEmail(String applicantEmail) {
