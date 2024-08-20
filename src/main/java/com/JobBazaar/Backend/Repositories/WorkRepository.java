@@ -3,6 +3,8 @@ package com.JobBazaar.Backend.Repositories;
 import com.JobBazaar.Backend.Dto.WorkDto;
 import com.JobBazaar.Backend.Mappers.DynamoDbItemMapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
@@ -19,7 +21,6 @@ import software.amazon.awssdk.services.dynamodb.model.UpdateItemResponse;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Logger;
 
 @Repository
 public class WorkRepository {
@@ -28,7 +29,7 @@ public class WorkRepository {
     private final DynamoDbItemMapper dynamoDbItemMapper;
 
     private final String WORK = "Work";
-    private final Logger LOGGER = Logger.getLogger(WorkRepository.class.getName());
+    private final Logger LOGGER = LoggerFactory.getLogger(WorkRepository.class);
 
     public WorkRepository(DynamoDbClient client, DynamoDbItemMapper dynamoDbItemMapper) {
         this.client = client;
@@ -44,7 +45,7 @@ public class WorkRepository {
             LOGGER.info("Added new work experience: " + putItemResponse.toString());
             return putItemResponse.sdkHttpResponse().isSuccessful();
         } catch (DynamoDbException exp) {
-            LOGGER.warning("Work experience couldn't be created" + exp.getMessage());
+            LOGGER.error("Work experience couldn't be created {}", exp.getMessage());
             throw exp;
         }
     }
@@ -61,7 +62,7 @@ public class WorkRepository {
             LOGGER.info("Updated work experience: " + updateItemResponse.toString());
             return updateItemResponse.sdkHttpResponse().isSuccessful();
         } catch (DynamoDbException exp) {
-            LOGGER.warning("Work experience couldn't be updated" + exp.getMessage());
+            LOGGER.error("Work experience couldn't be updated {}", exp.getMessage());
             throw exp;
         }
     }
@@ -74,10 +75,10 @@ public class WorkRepository {
         DeleteItemRequest deleteItemRequest = DeleteItemRequest.builder().key(key).tableName(WORK).build();
         try {
             DeleteItemResponse deleteItemResponse = client.deleteItem(deleteItemRequest);
-            LOGGER.info("Deleted work experience: " + deleteItemResponse.toString());
+            LOGGER.info("Deleted work experience: {}", deleteItemResponse.toString());
             return deleteItemResponse.sdkHttpResponse().isSuccessful();
         } catch (DynamoDbException exp) {
-            LOGGER.warning("Work experience couldn't be deleted" + exp.getMessage());
+            LOGGER.error("Work experience couldn't be deleted {}", exp.getMessage());
             throw exp;
         }
     }
@@ -91,10 +92,10 @@ public class WorkRepository {
 
         try {
             GetItemResponse getItemResponse = client.getItem(getItemRequest);
-            LOGGER.info("Retrieved work experience: " + getItemResponse.toString());
+            LOGGER.info("Retrieved work experience for {}", email);
             return getWorkDto(getItemResponse);
         } catch (DynamoDbException exp) {
-            LOGGER.warning("Work experience couldn't be retrieved" + exp.getMessage());
+            LOGGER.error("Work experience couldn't be retrieved {}", exp.getMessage());
             throw exp;
         }
     }

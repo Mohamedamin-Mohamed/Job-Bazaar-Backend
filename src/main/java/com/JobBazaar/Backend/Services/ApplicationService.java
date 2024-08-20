@@ -27,4 +27,8 @@ public class ApplicationService {
     public boolean hasApplied(String applicantEmail, String jobId){
         return applicationRepository.hasApplied(applicantEmail, jobId);
     }
+
+    public boolean deleteApplication(String applicantEmail, String jobId){
+        return applicationRepository.deleteApplication(applicantEmail, jobId);
+    }
 }

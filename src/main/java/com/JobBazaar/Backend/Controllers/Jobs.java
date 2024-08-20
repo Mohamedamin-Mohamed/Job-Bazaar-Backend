@@ -7,12 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -20,7 +15,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/jobs")
 public class Jobs {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Login.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Jobs.class);
 
     private final JobService jobService;
 
@@ -77,5 +72,23 @@ public class Jobs {
             return ResponseEntity.ok(jobsMap);
         }
         return ResponseEntity.badRequest().build();
+    }
+
+    @PostMapping("/applicants-count")
+    public ResponseEntity<Map<String, Integer>> countApplicants(@RequestBody List<String> jobIds) {
+        LOGGER.info("Received request to get applicants count");
+
+        Map<String, Integer> applicantsCount = jobService.countApplicantsByJobIds(jobIds);
+
+        if (!applicantsCount.isEmpty()) {
+            return ResponseEntity.ok(applicantsCount);
+        }
+        return ResponseEntity.badRequest().build();
+    }
+
+    @DeleteMapping("/delete/{employerEmail}/{jobId}")
+    public boolean deleteJob(@PathVariable String employerEmail, @PathVariable String jobId) {
+        LOGGER.info("Received request to delete job by id: {}", jobId);
+        return jobService.deleteApplication(employerEmail, jobId);
     }
 }
