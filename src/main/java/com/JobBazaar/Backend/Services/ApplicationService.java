@@ -31,4 +31,8 @@ public class ApplicationService {
     public boolean deleteApplication(String applicantEmail, String jobId){
         return applicationRepository.deleteApplication(applicantEmail, jobId);
     }
+
+    public List<Map<String, Object>> getJobsAppliedToUsers(String jobId){
+        return applicationRepository.getJobsAppliedToUsers(jobId);
+    }
 }
