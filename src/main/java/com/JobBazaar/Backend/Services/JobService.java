@@ -8,14 +8,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
 import java.util.List;
 import java.util.Map;
 
 @Service
 public class JobService {
-    private static Logger LOGGER = LoggerFactory.getLogger(Login.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Login.class);
     private final JobRepository jobRepository;
     private final ShortUUIDGenerator shortUUIDGenerator;
 
@@ -34,14 +33,15 @@ public class JobService {
             }
             return jobRepository.saveJob(jobPostRequest);
         } catch (Exception exp) {
-            LOGGER.error("Couldn't create job" + exp);
+            LOGGER.error("Could not create job", exp);
             return false;
         }
     }
-  
-    public List<Map<String, String>> getAvailableJobs(){
+
+    public List<Map<String, String>> getAvailableJobs() {
         return jobRepository.getAvailableJobs();
     }
+
     public List<Map<String, String>> getJobsByEmployerEmail(String employerEmail) {
 
         return jobRepository.getJobsByEmployerEmail(employerEmail);
@@ -49,5 +49,13 @@ public class JobService {
 
     public Map<String, String> getJobsById(String employerEmail, String jobId) {
         return jobRepository.getJobsById(employerEmail, jobId);
+    }
+
+    public Map<String, Integer> countApplicantsByJobIds(List<String> jobIds) {
+        return jobRepository.countApplicantsByJobIds(jobIds);
+    }
+
+    public boolean deleteApplication(String employerEmail, String jobId) {
+        return jobRepository.deleteApplication(employerEmail, jobId);
     }
 }
