@@ -81,4 +81,10 @@ public class Application {
         LOGGER.info("Received request to check if {} has applied to job with id {}", applicantEmail, jobId);
         return applicationService.hasApplied(applicantEmail, jobId);
     }
+
+    @DeleteMapping("/delete/{applicantEmail}/{jobId}")
+    public boolean deleteApplication(@PathVariable String applicantEmail, @PathVariable String jobId) {
+        LOGGER.info("Received request to delete {} application with id {}", applicantEmail, jobId);
+        return applicationService.deleteApplication(applicantEmail, jobId);
+    }
 }
