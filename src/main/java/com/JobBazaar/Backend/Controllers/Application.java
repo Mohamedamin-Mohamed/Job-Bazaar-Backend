@@ -87,4 +87,16 @@ public class Application {
         LOGGER.info("Received request to delete {} application with id {}", applicantEmail, jobId);
         return applicationService.deleteApplication(applicantEmail, jobId);
     }
+
+    @GetMapping("/job/{jobId}/users")
+    public List<Map<String, Object>> getJobsAppliedToUsers(@PathVariable final String jobId) {
+        LOGGER.info("Received request to retrieve jobs applied to users by {}", jobId);
+
+        List<Map<String, Object>> jobsAppliedToUsers  = applicationService.getJobsAppliedToUsers(jobId);
+
+        if(!jobsAppliedToUsers.isEmpty()){
+            ResponseEntity.ok(jobsAppliedToUsers);
+        }
+        return jobsAppliedToUsers;
+    }
 }

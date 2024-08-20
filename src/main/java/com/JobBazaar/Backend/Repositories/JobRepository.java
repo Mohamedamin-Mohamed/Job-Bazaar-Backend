@@ -107,7 +107,7 @@ public class JobRepository {
             }
             return new HashMap<>();
         } catch (Exception exp) {
-            LOGGER.error("Couldn't retrieve the job with id {}", jobId + exp.toString());
+            LOGGER.error("Couldn't retrieve the job with id {}", jobId + exp);
             throw exp;
         }
     }
