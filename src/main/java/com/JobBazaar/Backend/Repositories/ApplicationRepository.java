@@ -96,7 +96,8 @@ public class ApplicationRepository {
         try {
             GetItemResponse getItemResponse = client.getItem(getItemRequest);
             return getItemResponse.hasItem();
-        } catch (DynamoDbException exp) {
+        }
+        catch (DynamoDbException exp) {
             LOGGER.info("Couldn't check if {} has applied to {}", applicantEmail, jobId);
             return false;
         } catch (Exception exp) {
@@ -189,5 +190,26 @@ public class ApplicationRepository {
             throw exp;
         }
     }
+  
+    public boolean deleteApplication(String applicantEmail, String jobId) {
+        LOGGER.info("Deleting {} application with id {}:", applicantEmail, jobId);
+        Map<String, AttributeValue> key = new HashMap<>();
+        key.put("applicantEmail", AttributeValue.builder().s(applicantEmail).build());
+        key.put("jobId", AttributeValue.builder().s(jobId).build());
 
+        DeleteItemRequest deleteItemRequest = DeleteItemRequest.builder().tableName(APPLICATIONS).key(key).build();
+
+        try{
+            DeleteItemResponse deleteItemResponse = client.deleteItem(deleteItemRequest);
+            return  deleteItemResponse.sdkHttpResponse().isSuccessful();
+        }
+        catch (DynamoDbException exp) {
+            LOGGER.error("Couldn't delete {} application with id {}", applicantEmail, jobId);
+            return false;
+        }
+        catch (Exception exp) {
+            LOGGER.error("Unknown error occurred {}", exp.toString());
+            return false;
+        }
+    }
 }
