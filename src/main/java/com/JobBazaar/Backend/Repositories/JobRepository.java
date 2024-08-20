@@ -7,15 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
-import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
-import software.amazon.awssdk.services.dynamodb.model.GetItemRequest;
-import software.amazon.awssdk.services.dynamodb.model.GetItemResponse;
-import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
-import software.amazon.awssdk.services.dynamodb.model.PutItemResponse;
-import software.amazon.awssdk.services.dynamodb.model.QueryRequest;
-import software.amazon.awssdk.services.dynamodb.model.QueryResponse;
-import software.amazon.awssdk.services.dynamodb.model.ScanRequest;
-import software.amazon.awssdk.services.dynamodb.model.ScanResponse;
+import software.amazon.awssdk.services.dynamodb.model.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,6 +18,7 @@ import java.util.Map;
 public class JobRepository {
     private static final Logger LOGGER = LoggerFactory.getLogger(JobRepository.class);
     private final String JOBS = "Jobs";
+    private final String APPLICATIONS = "Applications";
 
     private final DynamoDbClient client;
     private final DynamoDbItemMapper dynamoDbItemMapper;
@@ -53,21 +46,20 @@ public class JobRepository {
         }
     }
 
-    public List<Map<String, String>> getAvailableJobs(){
+    public List<Map<String, String>> getAvailableJobs() {
         LOGGER.info("Retrieving available jobs");
 
         ScanRequest scanRequest = ScanRequest.builder().tableName(JOBS).build();
 
-        try{
+        try {
             ScanResponse scanResponse = client.scan(scanRequest);
             LOGGER.info("Retrieved available jobs");
 
-            if(!scanResponse.items().isEmpty()){
+            if (!scanResponse.items().isEmpty()) {
                 return dynamoDbItemMapper.toDynamoDbItemMap(scanResponse.items());
             }
             return new ArrayList<>();
-        }
-        catch (Exception exp){
+        } catch (Exception exp) {
             LOGGER.error("Couldn't retrieve available jobs {}", exp.toString());
             throw exp;
         }
@@ -87,7 +79,7 @@ public class JobRepository {
 
         try {
             QueryResponse queryResponse = client.query(queryRequest);
-            if(!queryResponse.items().isEmpty()){
+            if (!queryResponse.items().isEmpty()) {
                 return dynamoDbItemMapper.toDynamoDbItemMap(queryResponse.items());
             }
             return new ArrayList<>();
@@ -110,13 +102,56 @@ public class JobRepository {
             GetItemResponse getItemResponse = client.getItem(getItemRequest);
             LOGGER.info("Retrieved the job with job id {}", jobId);
 
-            if(!getItemResponse.item().isEmpty()) {
+            if (!getItemResponse.item().isEmpty()) {
                 return dynamoDbItemMapper.toDynamoDbItemMap(getItemResponse.item());
             }
             return new HashMap<>();
         } catch (Exception exp) {
             LOGGER.error("Couldn't retrieve the job with id {}", jobId + exp.toString());
             throw exp;
+        }
+    }
+
+    public Map<String, Integer> countApplicantsByJobIds(List<String> jobIds) {
+        LOGGER.info("Retrieving applicants count");
+
+        Map<String, Integer> applicantsCount = new HashMap<>();
+        for (String jobId : jobIds) {
+            Map<String, AttributeValue> expressionValues = new HashMap<>();
+            expressionValues.put(":jobId", AttributeValue.builder().s(jobId).build());
+
+            ScanRequest scanRequest = ScanRequest.builder().tableName(APPLICATIONS).filterExpression("jobId = :jobId")
+                    .expressionAttributeValues(expressionValues).build();
+
+            try {
+                ScanResponse scanResponse = client.scan(scanRequest);
+                int count = scanResponse.count();
+                applicantsCount.put(jobId, count);
+            } catch (Exception exp) {
+                LOGGER.error("Couldn't retrieve applicants count {}", exp.toString());
+            }
+        }
+        return applicantsCount;
+    }
+
+    public boolean deleteApplication(String employerEmail, String jobId) {
+        LOGGER.info("Deleting application with employer email {}", employerEmail);
+
+        Map<String, AttributeValue> key = new HashMap<>();
+        key.put("employerEmail", AttributeValue.builder().s(employerEmail).build());
+        key.put("jobId", AttributeValue.builder().s(jobId).build());
+
+        DeleteItemRequest deleteItemRequest = DeleteItemRequest.builder().tableName(JOBS).key(key).build();
+
+        try {
+            DeleteItemResponse deleteItemResponse = client.deleteItem(deleteItemRequest);
+            return deleteItemResponse.sdkHttpResponse().isSuccessful();
+        } catch (DynamoDbException exp) {
+            LOGGER.error("Couldn't delete {} application with id {}", employerEmail, jobId);
+            return false;
+        } catch (Exception exp) {
+            LOGGER.error("Unknown error occurred {}", exp.toString());
+            return false;
         }
     }
 }
