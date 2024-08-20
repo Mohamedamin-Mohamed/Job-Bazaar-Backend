@@ -135,7 +135,7 @@ public class AppConfig {
 
     @Bean
     public ApplicationRepository applicationRepository() {
-        return new ApplicationRepository(dynamoDbClient(), dynamoDbItemMapper());
+        return new ApplicationRepository(dynamoDbClient(), dynamoDbItemMapper(), s3Client());
     }
 
     @Bean
