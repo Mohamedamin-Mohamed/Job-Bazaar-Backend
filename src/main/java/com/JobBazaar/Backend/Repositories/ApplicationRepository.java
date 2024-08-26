@@ -190,92 +190,6 @@ public class ApplicationRepository {
             throw exp;
         }
     }
-  
-    public boolean deleteApplication(String applicantEmail, String jobId) {
-        LOGGER.info("Deleting {} application with id {}:", applicantEmail, jobId);
-        Map<String, AttributeValue> key = new HashMap<>();
-        key.put("applicantEmail", AttributeValue.builder().s(applicantEmail).build());
-        key.put("jobId", AttributeValue.builder().s(jobId).build());
-
-        DeleteItemRequest deleteItemRequest = DeleteItemRequest.builder().tableName(APPLICATIONS).key(key).build();
-
-        try {
-            DeleteItemResponse deleteItemResponse = client.deleteItem(deleteItemRequest);
-            return deleteItemResponse.sdkHttpResponse().isSuccessful();
-        } catch (DynamoDbException exp) {
-            LOGGER.error("Couldn't delete {} application with id {}", applicantEmail, jobId);
-            return false;
-        } catch (Exception exp) {
-            LOGGER.error("Unknown error occurred {}", exp.toString());
-            return false;
-        }
-    }
-
-    public List<Map<String, Object>> getJobsAppliedToUsers(String jobId) {
-        LOGGER.info("Retrieving all jobs applied to {}", jobId);
-
-        Map<String, AttributeValue> expressionValues = new HashMap<>();
-        expressionValues.put(":jobId", AttributeValue.builder().s(jobId).build());
-
-        List<Map<String, Object>> mapList = new ArrayList<>();
-        ScanRequest scanRequest = ScanRequest.builder().tableName(APPLICATIONS).filterExpression("jobId = :jobId").
-                expressionAttributeValues(expressionValues).build();
-
-        try {
-            ScanResponse scanResponse = client.scan(scanRequest);
-            List<Map<String, AttributeValue>> items = scanResponse.items();
-
-            return items.stream().map(item -> {
-                Map<String, Object> stringObjectMap = new HashMap<>();
-
-                item.forEach((key, value) -> {
-                    if (key.equals("resumeDetails") || key.equals("additionalDocDetails")) {
-                        handleDocumentDetails(key, value, stringObjectMap);
-                    } else {
-                        String stringValue = value != null && !value.s().isEmpty() ? value.s() : "";
-                        stringObjectMap.put(key, stringValue);
-                    }
-                });
-                return stringObjectMap;
-            }).collect(Collectors.toList());
-
-        } catch (Exception e) {
-            LOGGER.error("Error retrieving jobs applied to users: {}", e.getMessage());
-            throw new RuntimeException(e);
-        }
-    }
-
-    public void handleDocumentDetails(String key, AttributeValue attributeValue, Map<String, Object> map) {
-        if (attributeValue.m() != null) {
-            Map<String, AttributeValue> detailsMap = attributeValue.m();
-            AttributeValue s3KeyValue = detailsMap.get("S3Key");
-
-            if (s3KeyValue != null) {
-                String s3Key = s3KeyValue.s();
-                try {
-                    byte[] file = retrieveFile(s3Key);
-                    map.put(key.equals("resumeDetails") ? "resume" : "additionalDoc", file);
-                } catch (IOException e) {
-                    LOGGER.error("Error retrieving file from S3: {}", e.getMessage());
-                }
-            }
-        }
-    }
-
-    public byte[] retrieveFile(String keyName) throws IOException {
-        GetObjectRequest getObjectRequest = GetObjectRequest.builder().bucket(BUCKET).key(keyName).build();
-        try {
-            ResponseInputStream<GetObjectResponse> getObjectResponse = s3Client.getObject(getObjectRequest);
-            return getObjectResponse.readAllBytes();
-
-        } catch (S3Exception exp) {
-            LOGGER.error("Couldn't retrieve file {}", exp.getMessage());
-            throw exp;
-        } catch (IOException exp) {
-            LOGGER.error("IO error occurred {}", exp.getMessage());
-            throw exp;
-        }
-    }
 
     public boolean updateApplicationStatus(String applicantEmail, String jobId, UpdateApplicationStatusRequest statusRequest) {
         LOGGER.info("Updating applicationStatus for {} of job id {}", applicantEmail, jobId);
@@ -308,7 +222,5 @@ public class ApplicationRepository {
             throw exp;
         }
     }
-
-
 
 }
