@@ -1,6 +1,7 @@
 package com.JobBazaar.Backend.Controllers;
 
 import com.JobBazaar.Backend.Dto.ApplicationDto;
+import com.JobBazaar.Backend.Dto.UpdateApplicationStatusRequest;
 import com.JobBazaar.Backend.Services.ApplicationService;
 import com.JobBazaar.Backend.Services.FilesUploadService;
 import org.slf4j.Logger;
@@ -39,26 +40,25 @@ public class Application {
         LOGGER.info("Received request to add a new application");
 
 
-
         List<String> fileNames = new ArrayList<>();
         fileNames.add(resumeFile.getOriginalFilename());
 
-        if(additionalDocFile != null) {
+        if (additionalDocFile != null) {
             fileNames.add(additionalDocFile.getOriginalFilename());
         }
 
         Map<String, byte[]> map = new HashMap<>();
         map.put("resume", resumeFile.getBytes());
 
-        if(additionalDocFile != null) {
+        if (additionalDocFile != null) {
             map.put("additionalDoc", additionalDocFile.getBytes());
         }
         Map<String, Map<String, String>> fileUploadedToS3Info = filesUploadService.uploadFile(map, fileNames);
         boolean applicationAdded = applicationService.addApplication(applicationDto, fileUploadedToS3Info);
 
 
-        if(applicationAdded){
-            return new ResponseEntity<>("Application added successfully", HttpStatus.OK);
+        if (applicationAdded) {
+            return new ResponseEntity<>("Application added successfully", HttpStatus.CREATED);
         }
 
         return new ResponseEntity<>("Something went wrong, please try again!!!", HttpStatus.BAD_REQUEST);
@@ -66,7 +66,7 @@ public class Application {
 
     @GetMapping("/users/{applicantEmail}")
     public ResponseEntity<List<Map<String, String>>> getJobsAppliedTo(@PathVariable final String applicantEmail) {
-        LOGGER.info("Received request t retrieve jobs applied to by {}", applicantEmail);
+        LOGGER.info("Received request to retrieve jobs applied to by {}", applicantEmail);
 
         List<Map<String, String>> jobsAppliedTo = applicationService.getJobsAppliedTo(applicantEmail);
         if (!jobsAppliedTo.isEmpty()) {
@@ -92,11 +92,27 @@ public class Application {
     public List<Map<String, Object>> getJobsAppliedToUsers(@PathVariable final String jobId) {
         LOGGER.info("Received request to retrieve jobs applied to users by {}", jobId);
 
-        List<Map<String, Object>> jobsAppliedToUsers  = applicationService.getJobsAppliedToUsers(jobId);
+        List<Map<String, Object>> jobsAppliedToUsers = applicationService.getJobsAppliedToUsers(jobId);
 
         if(!jobsAppliedToUsers.isEmpty()){
             ResponseEntity.ok(jobsAppliedToUsers);
         }
         return jobsAppliedToUsers;
+    }
+
+    @PatchMapping("/updateApplicationStatus/{applicantEmail}/{jobId}")
+    public ResponseEntity<String> updateApplicationStatus(@PathVariable String applicantEmail,
+                                                          @PathVariable String jobId,
+                                                          @RequestBody UpdateApplicationStatusRequest statusRequest) {
+
+        LOGGER.info("Received request to update application status of job id {}", jobId);
+
+        boolean isUpdated = applicationService.updateApplicationStatus(applicantEmail, jobId, statusRequest);
+
+        if (isUpdated) {
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
 }

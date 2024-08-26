@@ -1,6 +1,7 @@
 package com.JobBazaar.Backend.Services;
 
 import com.JobBazaar.Backend.Dto.ApplicationDto;
+import com.JobBazaar.Backend.Dto.UpdateApplicationStatusRequest;
 import com.JobBazaar.Backend.Repositories.ApplicationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,4 +36,9 @@ public class ApplicationService {
     public List<Map<String, Object>> getJobsAppliedToUsers(String jobId){
         return applicationRepository.getJobsAppliedToUsers(jobId);
     }
+
+    public boolean updateApplicationStatus(String applicantEmail, String jobId, UpdateApplicationStatusRequest statusRequest){
+        return applicationRepository.updateApplicationStatus(applicantEmail, jobId, statusRequest);
+    }
+
 }

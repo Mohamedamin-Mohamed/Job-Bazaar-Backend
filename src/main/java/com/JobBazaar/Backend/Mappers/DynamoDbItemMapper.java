@@ -73,6 +73,7 @@ public class DynamoDbItemMapper {
         item.put("description", AttributeValue.builder().s(jobPostRequest.getDescription()).build());
         item.put("requirements", AttributeValue.builder().s(jobPostRequest.getRequirements()).build());
         item.put("postedDate", AttributeValue.builder().s(jobPostRequest.getPostedDate()).build());
+        item.put("jobStatus", AttributeValue.builder().s(jobPostRequest.getJobStatus()).build());
         return item;
     }
 

@@ -1,6 +1,7 @@
 package com.JobBazaar.Backend.Repositories;
 
 import com.JobBazaar.Backend.Dto.JobPostRequest;
+import com.JobBazaar.Backend.Dto.UpdateJobStatusRequest;
 import com.JobBazaar.Backend.Mappers.DynamoDbItemMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -134,24 +135,63 @@ public class JobRepository {
         return applicantsCount;
     }
 
-    public boolean deleteApplication(String employerEmail, String jobId) {
-        LOGGER.info("Deleting application with employer email {}", employerEmail);
+    public boolean updateJob(String employerEmail, String jobId, UpdateJobStatusRequest updateJobStatusRequest) {
+        LOGGER.info("Updating job with employer email {} job id {}", employerEmail, jobId);
 
         Map<String, AttributeValue> key = new HashMap<>();
         key.put("employerEmail", AttributeValue.builder().s(employerEmail).build());
         key.put("jobId", AttributeValue.builder().s(jobId).build());
 
-        DeleteItemRequest deleteItemRequest = DeleteItemRequest.builder().tableName(JOBS).key(key).build();
+        Map<String, String> expressionAttributeNames = new HashMap<>();
+        expressionAttributeNames.put("#jobStatus", "jobStatus");
 
+        Map<String, AttributeValue> expressionAttributeValues = new HashMap<>();
+        expressionAttributeValues.put(":status", AttributeValue.builder().s(updateJobStatusRequest.getJobStatus()).build());
+
+
+        UpdateItemRequest updateItemRequest = UpdateItemRequest.builder().
+                tableName(JOBS).
+                key(key).
+                updateExpression("Set #jobStatus = :status").
+                expressionAttributeNames(expressionAttributeNames).
+                expressionAttributeValues(expressionAttributeValues).build();
         try {
-            DeleteItemResponse deleteItemResponse = client.deleteItem(deleteItemRequest);
-            return deleteItemResponse.sdkHttpResponse().isSuccessful();
+            UpdateItemResponse updateItemResponse = client.updateItem(updateItemRequest);
+            return updateItemResponse.sdkHttpResponse().isSuccessful();
         } catch (DynamoDbException exp) {
-            LOGGER.error("Couldn't delete {} application with id {}", employerEmail, jobId);
-            return false;
+            LOGGER.error("Couldn't update job with id {}", jobId, exp);
+            throw exp;
         } catch (Exception exp) {
-            LOGGER.error("Unknown error occurred {}", exp.toString());
-            return false;
+            LOGGER.error("Unknown error occurred ", exp);
+            throw exp;
+        }
+    }
+
+    public boolean jobExists(String employerEmail, String jobId) {
+        LOGGER.info("Checking if job with employer email {} and job id {} exists", employerEmail, jobId);
+
+        String keyConditionExpression = "employerEmail = :empEmail and jobId = :jId";
+        String filterExpression = "jobStatus = :jStatus";
+
+        Map<String, AttributeValue> expressionAttributeValues = new HashMap<>();
+        expressionAttributeValues.put(":empEmail", AttributeValue.builder().s(employerEmail).build());
+        expressionAttributeValues.put(":jId", AttributeValue.builder().s(jobId).build());
+        expressionAttributeValues.put(":jStatus", AttributeValue.builder().s("active").build());
+
+        QueryRequest queryRequest = QueryRequest.builder().
+                tableName(JOBS).
+                expressionAttributeValues(expressionAttributeValues).
+                keyConditionExpression(keyConditionExpression).
+                filterExpression(filterExpression).build();
+        try {
+            QueryResponse queryResponse = client.query(queryRequest);
+            return !queryResponse.items().isEmpty();
+        } catch (DynamoDbException exp) {
+            LOGGER.error("Couldn't retrieve job with id {}", jobId);
+            throw exp;
+        } catch (Exception exp) {
+            LOGGER.error("Unknown error occurred", exp);
+            throw exp;
         }
     }
 }
