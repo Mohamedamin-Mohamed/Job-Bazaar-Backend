@@ -33,7 +33,7 @@ public class Work {
     ResponseEntity<String> saveWorkExperience(@RequestBody WorkDto workDto) throws ParseException, JsonProcessingException {
         boolean addedWorkExperience = workService.saveWorkExperience(workDto);
         if (addedWorkExperience) {
-            return new ResponseEntity<>("Work experience was saved successfully", HttpStatus.OK);
+            return new ResponseEntity<>("Work experience was saved successfully", HttpStatus.CREATED);
         }
         return new ResponseEntity<>("Work experience could not be saved", HttpStatus.BAD_REQUEST);
     }
