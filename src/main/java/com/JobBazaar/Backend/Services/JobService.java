@@ -2,6 +2,7 @@ package com.JobBazaar.Backend.Services;
 
 import com.JobBazaar.Backend.Controllers.Login;
 import com.JobBazaar.Backend.Dto.JobPostRequest;
+import com.JobBazaar.Backend.Dto.UpdateJobStatusRequest;
 import com.JobBazaar.Backend.Repositories.JobRepository;
 import com.JobBazaar.Backend.Utils.ShortUUIDGenerator;
 import org.slf4j.Logger;
@@ -25,7 +26,6 @@ public class JobService {
     }
 
     public boolean createJob(JobPostRequest jobPostRequest) {
-        System.out.println("Job id " + jobPostRequest.getJobId());
         try {
             if (jobPostRequest.getJobId() == null) {
                 String jobId = shortUUIDGenerator.generateShortUUID();
@@ -55,7 +55,11 @@ public class JobService {
         return jobRepository.countApplicantsByJobIds(jobIds);
     }
 
-    public boolean deleteApplication(String employerEmail, String jobId) {
-        return jobRepository.deleteApplication(employerEmail, jobId);
+    public boolean updateJob(String employerEmail, String jobId, UpdateJobStatusRequest updateJobStatusRequest) {
+        return jobRepository.updateJob(employerEmail, jobId, updateJobStatusRequest);
+    }
+
+    public boolean jobExists(String employerEmail, String jobId) {
+        return jobRepository.jobExists(employerEmail, jobId);
     }
 }
