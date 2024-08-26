@@ -35,7 +35,7 @@ public class Jobs {
             return new ResponseEntity<>("Job created successfully", HttpStatus.CREATED);
         }
 
-        return new ResponseEntity<>("Couldn't create job", HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>("Couldn't create job", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @GetMapping("/")
@@ -48,7 +48,7 @@ public class Jobs {
             return ResponseEntity.ok(availableJobs);
         }
 
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.notFound().build();
     }
 
     @GetMapping("/employer/{employerEmail}")
@@ -60,7 +60,7 @@ public class Jobs {
 
             return ResponseEntity.ok(jobsByEmployer);
         }
-        return ResponseEntity.badRequest().build();
+        return ResponseEntity.notFound().build();
     }
 
     @GetMapping("/{employerEmail}/{jobId}")
@@ -72,7 +72,7 @@ public class Jobs {
         if (!jobsMap.isEmpty()) {
             return ResponseEntity.ok(jobsMap);
         }
-        return ResponseEntity.badRequest().build();
+        return ResponseEntity.notFound().build();
     }
 
     @PostMapping("/applicants-count")
@@ -84,7 +84,7 @@ public class Jobs {
         if (!applicantsCount.isEmpty()) {
             return ResponseEntity.ok(applicantsCount);
         }
-        return ResponseEntity.badRequest().build();
+        return ResponseEntity.notFound().build();
     }
 
     @PatchMapping("/update/{employerEmail}/{jobId}")
