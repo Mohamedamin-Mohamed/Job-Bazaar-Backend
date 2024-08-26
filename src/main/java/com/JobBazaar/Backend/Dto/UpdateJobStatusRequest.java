@@ -1,6 +1,6 @@
 package com.JobBazaar.Backend.Dto;
 
-public class UpdateJobStatus {
+public class UpdateJobStatusRequest {
     private String jobStatus;
 
     public String getJobStatus() {
