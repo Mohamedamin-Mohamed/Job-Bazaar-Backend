@@ -52,7 +52,7 @@ public class Login {
                 response.put("token", token);
                 response.put("user", userDto);
                 response.put("message", message);
-                return new ResponseEntity<>(response, HttpStatus.OK);
+                return new ResponseEntity<>(response, HttpStatus.CREATED);
             }
             //password didn't match
             return new ResponseEntity<>("Incorrect Password", HttpStatus.UNAUTHORIZED);
