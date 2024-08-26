@@ -40,4 +40,5 @@ public class ApplicationService {
     public boolean updateApplicationStatus(String applicantEmail, String jobId, UpdateApplicationStatusRequest statusRequest){
         return applicationRepository.updateApplicationStatus(applicantEmail, jobId, statusRequest);
     }
+
 }

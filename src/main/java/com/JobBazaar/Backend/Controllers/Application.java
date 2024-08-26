@@ -94,7 +94,7 @@ public class Application {
 
         List<Map<String, Object>> jobsAppliedToUsers = applicationService.getJobsAppliedToUsers(jobId);
 
-        if (!jobsAppliedToUsers.isEmpty()) {
+        if(!jobsAppliedToUsers.isEmpty()){
             ResponseEntity.ok(jobsAppliedToUsers);
         }
         return jobsAppliedToUsers;
