@@ -33,7 +33,7 @@ public class Education {
     ResponseEntity<String> saveEducation(@RequestBody EducationDto educationDto) throws ParseException, JsonProcessingException {
         boolean addedEducation = educationService.saveEducation(educationDto);
         if (addedEducation) {
-            return new ResponseEntity<>("Education saved successfully", HttpStatus.OK);
+            return new ResponseEntity<>("Education saved successfully", HttpStatus.CREATED);
         }
         return new ResponseEntity<>("Education could not be saved", HttpStatus.BAD_REQUEST);
     }
