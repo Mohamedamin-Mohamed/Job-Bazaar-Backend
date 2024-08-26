@@ -1,6 +1,7 @@
 package com.JobBazaar.Backend.Controllers;
 
 import com.JobBazaar.Backend.Dto.JobPostRequest;
+import com.JobBazaar.Backend.Dto.UpdateJobStatusRequest;
 import com.JobBazaar.Backend.Services.JobService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,14 +25,14 @@ public class Jobs {
         this.jobService = jobService;
     }
 
-    @PostMapping("/")
+    @PostMapping("/upload")
     public ResponseEntity<String> createJob(@RequestBody JobPostRequest jobPostRequest) {
         LOGGER.info("Create job request received");
 
         boolean jobCreated = jobService.createJob(jobPostRequest);
 
         if (jobCreated) {
-            return new ResponseEntity<>("Job created successfully", HttpStatus.OK);
+            return new ResponseEntity<>("Job created successfully", HttpStatus.CREATED);
         }
 
         return new ResponseEntity<>("Couldn't create job", HttpStatus.BAD_REQUEST);
@@ -86,9 +87,17 @@ public class Jobs {
         return ResponseEntity.badRequest().build();
     }
 
-    @DeleteMapping("/delete/{employerEmail}/{jobId}")
-    public boolean deleteJob(@PathVariable String employerEmail, @PathVariable String jobId) {
-        LOGGER.info("Received request to delete job by id: {}", jobId);
-        return jobService.deleteApplication(employerEmail, jobId);
+    @PatchMapping("/update/{employerEmail}/{jobId}")
+    public boolean updateJob(@PathVariable String employerEmail,
+                             @PathVariable String jobId,
+                             @RequestBody UpdateJobStatusRequest updateJobStatusRequest) {
+        LOGGER.info("Received request to update {} job of id: {}", employerEmail, jobId);
+        return jobService.updateJob(employerEmail, jobId, updateJobStatusRequest);
+    }
+
+    @GetMapping("/exists/{employerEmail}/{jobId}")
+    public boolean existsJob(@PathVariable String employerEmail, @PathVariable String jobId) {
+        LOGGER.info("Received request to check if job exists: {}", jobId);
+        return jobService.jobExists(employerEmail, jobId);
     }
 }
