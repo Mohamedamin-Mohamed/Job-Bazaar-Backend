@@ -64,9 +64,9 @@ public class ApplicationRepository {
         Map<String, AttributeValue> key = new HashMap<>();
         key.put(attributeValue, AttributeValue.builder().s(applicantEmail).build());
 
-        QueryRequest queryRequest = QueryRequest.builder().keyConditionExpression(keyConditionExpression).
-
-                expressionAttributeValues(key).tableName(APPLICATIONS).build();
+        QueryRequest queryRequest = QueryRequest.builder().tableName(APPLICATIONS).
+                keyConditionExpression(keyConditionExpression).
+                expressionAttributeValues(key).build();
 
         try {
             QueryResponse queryResponse = client.query(queryRequest);
