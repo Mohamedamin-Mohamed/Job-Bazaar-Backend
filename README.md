@@ -5,6 +5,7 @@ with various AWS services such as DynamoDB, S3, and SNS.
 ## Technologies Used
 
 Java
+
 Spring Boot: For creating a RESTful API and handling the application’s backend logic.
 
 AWS DynamoDB: Used as the primary database for storing job-related data.
