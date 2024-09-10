@@ -68,12 +68,4 @@ public class UserService {
     public UserDto getUsersInfo(String email) {
         return userRepository.getUsersInfo(email);
     }
-
-    public void saveTopicArn(String topic, String arn) {
-        snsRepository.saveTopicArn(topic, arn);
-    }
-
-    public void addSubscriberTopic(SignupRequestDto signupRequest, String topicName) {
-        snsRepository.addSubscriberToTopic(signupRequest, topicName);
-    }
 }
