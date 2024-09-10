@@ -3,7 +3,6 @@ package com.JobBazaar.Backend.Services;
 import com.JobBazaar.Backend.Repositories.FilesUploadRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import software.amazon.awssdk.enhanced.dynamodb.internal.AttributeValues;
 
 import java.util.List;
 import java.util.Map;
