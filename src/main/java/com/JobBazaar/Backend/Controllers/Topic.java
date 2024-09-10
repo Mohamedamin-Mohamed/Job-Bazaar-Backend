@@ -1,6 +1,6 @@
 package com.JobBazaar.Backend.Controllers;
 
-import com.JobBazaar.Backend.Services.UserService;
+import com.JobBazaar.Backend.Services.SnsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,12 +19,12 @@ import software.amazon.awssdk.services.sns.model.CreateTopicResponse;
 public class Topic {
     private static final Logger LOGGER = LoggerFactory.getLogger(Login.class);
     private final SnsClient snsClient;
-    private final UserService userService;
+    private final SnsService snsService;
 
     @Autowired
-    public Topic(SnsClient snsClient, UserService userService) {
+    public Topic(SnsClient snsClient, SnsService snsService) {
         this.snsClient = snsClient;
-        this.userService = userService;
+        this.snsService = snsService;
     }
 
     @GetMapping("/")
@@ -33,7 +33,7 @@ public class Topic {
         final CreateTopicResponse topicResponse = snsClient.createTopic(createTopicRequest);
         if (topicResponse.sdkHttpResponse().isSuccessful()) {
             LOGGER.info("Topic created successfully!");
-            userService.saveTopicArn(topic, topicResponse.topicArn());
+            snsService.saveTopicArn(topic, topicResponse.topicArn());
         } else {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, topicResponse.sdkHttpResponse().statusText().orElse("Cannot create topic " + topic));
         }

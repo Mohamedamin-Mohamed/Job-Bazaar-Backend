@@ -34,7 +34,7 @@ public class JobRepository {
         LOGGER.info("Saving job with employer email {}", jobPostRequest.getEmployerEmail());
 
         Map<String, AttributeValue> item = dynamoDbItemMapper.toDynamoDbItemMap(jobPostRequest);
-
+        System.out.println(item);
         PutItemRequest putItemRequest = PutItemRequest.builder().item(item).tableName(JOBS).build();
 
         try {

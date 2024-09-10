@@ -49,10 +49,10 @@ public class SnsRepository {
         }
     }
 
-    public boolean addSubscriberToTopic(SignupRequestDto signupRequest, String topicName) {
+    public void addSubscriberToTopic(SignupRequestDto signupRequest, String topicName) {
         LOGGER.info("Getting TopicArn for subscriber");
         String topicArn = getTopicArn(topicName);
-        if (topicArn == null) return false;
+        if (topicArn == null) return;
         else {
             final SubscribeRequest subscribeRequest = SubscribeRequest.builder().topicArn(topicArn).protocol("email")
                     .endpoint(signupRequest.getEmail()).build();
@@ -62,7 +62,6 @@ public class SnsRepository {
                 if (subscribeResponse.sdkHttpResponse().isSuccessful()) {
                     LOGGER.info("Subscriber creation successful");
                     snsClient.close();
-                    return true;
                 } else {
                     LOGGER.warning("Subscriber creation failed");
                     throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, subscribeResponse.sdkHttpResponse().statusText().get());

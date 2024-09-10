@@ -29,7 +29,6 @@ public class ApplicationRepository {
     private final DynamoDbClient client;
     private final DynamoDbItemMapper dynamoDbItemMapper;
     private final S3Client s3Client;
-    private final String BUCKET = "userfilesuploads";
     private static final String APPLICATIONS = "Applications";
 
     @Autowired
@@ -42,7 +41,7 @@ public class ApplicationRepository {
     public boolean addApplication(ApplicationDto application, Map<String, Map<String, String>> fileUploadedToS3Info) {
         LOGGER.info("Adding application: {}", application);
         Map<String, AttributeValue> item = dynamoDbItemMapper.toDynamoDbItemMap(application, fileUploadedToS3Info);
-
+        System.out.println(item);
         PutItemRequest putItemRequest = PutItemRequest.builder().tableName(APPLICATIONS).item(item).build();
 
         try {
@@ -64,9 +63,9 @@ public class ApplicationRepository {
         Map<String, AttributeValue> key = new HashMap<>();
         key.put(attributeValue, AttributeValue.builder().s(applicantEmail).build());
 
-        QueryRequest queryRequest = QueryRequest.builder().keyConditionExpression(keyConditionExpression).
-
-                expressionAttributeValues(key).tableName(APPLICATIONS).build();
+        QueryRequest queryRequest = QueryRequest.builder().tableName(APPLICATIONS).
+                keyConditionExpression(keyConditionExpression).
+                expressionAttributeValues(key).build();
 
         try {
             QueryResponse queryResponse = client.query(queryRequest);
@@ -131,7 +130,6 @@ public class ApplicationRepository {
         Map<String, AttributeValue> expressionValues = new HashMap<>();
         expressionValues.put(":jobId", AttributeValue.builder().s(jobId).build());
 
-        List<Map<String, Object>> mapList = new ArrayList<>();
         ScanRequest scanRequest = ScanRequest.builder().tableName(APPLICATIONS).filterExpression("jobId = :jobId").
                 expressionAttributeValues(expressionValues).build();
 
@@ -177,6 +175,7 @@ public class ApplicationRepository {
     }
 
     public byte[] retrieveFile(String keyName) throws IOException {
+        String BUCKET = "userfilesuploads";
         GetObjectRequest getObjectRequest = GetObjectRequest.builder().bucket(BUCKET).key(keyName).build();
         try {
             ResponseInputStream<GetObjectResponse> getObjectResponse = s3Client.getObject(getObjectRequest);
@@ -198,18 +197,32 @@ public class ApplicationRepository {
         key.put("applicantEmail", AttributeValue.builder().s(applicantEmail).build());
         key.put("jobId", AttributeValue.builder().s(jobId).build());
 
-        Map<String, String > expressionAttributeNames = new HashMap<>();
+        boolean isDeclined = statusRequest.getApplicationStatus().equals("Declined") || statusRequest.getApplicationStatus().equals("Candidate Withdrew Interest");
+
+        Map<String, String> expressionAttributeNames = new HashMap<>();
         expressionAttributeNames.put("#status", "applicationStatus");
+
+        if (isDeclined) {
+            expressionAttributeNames.put("#active", "isActive");
+        }
 
         Map<String, AttributeValue> expressionAttributeValues = new HashMap<>();
         expressionAttributeValues.put(":newStatus", AttributeValue.builder().s(statusRequest.getApplicationStatus()).build());
 
+        if (isDeclined) {
+            expressionAttributeValues.put(":newActive", AttributeValue.builder().s("false").build());
+        }
+        //build the update expression
+        String updateExpression = "Set #status = :newStatus";
+        if (isDeclined) {
+            updateExpression += ", #active = :newActive";
+        }
 
         UpdateItemRequest updateItemRequest = UpdateItemRequest.builder().tableName(APPLICATIONS).
-                                                key(key).updateExpression("Set #status = :newStatus").
-                                                expressionAttributeNames(expressionAttributeNames).
-                                                expressionAttributeValues(expressionAttributeValues).
-                                                build();
+                key(key).updateExpression(updateExpression).
+                expressionAttributeNames(expressionAttributeNames).
+                expressionAttributeValues(expressionAttributeValues).
+                build();
 
         try {
             UpdateItemResponse updateItemResponse = client.updateItem(updateItemRequest);

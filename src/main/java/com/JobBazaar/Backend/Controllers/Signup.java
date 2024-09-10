@@ -3,6 +3,8 @@ package com.JobBazaar.Backend.Controllers;
 import com.JobBazaar.Backend.Dto.SignupRequestDto;
 import com.JobBazaar.Backend.Dto.UserDto;
 import com.JobBazaar.Backend.JwtToken.JwtTokenService;
+import com.JobBazaar.Backend.Services.EmailService;
+import com.JobBazaar.Backend.Services.SnsService;
 import com.JobBazaar.Backend.Services.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,18 +24,21 @@ import java.util.Map;
 @RequestMapping("/accounts/signup")
 public class Signup {
     private static final Logger LOGGER = LoggerFactory.getLogger(Login.class);
-
     private final UserService userService;
-    private JwtTokenService jwtToken;
+    private final SnsService snsService;
+    private final JwtTokenService jwtToken;
+    private final EmailService emailService;
 
     @Autowired
-    public Signup(UserService userService, JwtTokenService jwtToken) {
+    public Signup(UserService userService, SnsService snsService, JwtTokenService jwtToken, EmailService emailService) {
         this.userService = userService;
+        this.snsService = snsService;
         this.jwtToken = jwtToken;
+        this.emailService = emailService;
     }
 
     @PostMapping("/")
-    public ResponseEntity<Object> createUser(@RequestBody SignupRequestDto signupRequest) {
+    public ResponseEntity<Object> createUser(@RequestBody SignupRequestDto signupRequest) throws IOException {
         LOGGER.info("Signup request received");
 
         UserDto userDto = userService.createUser(signupRequest);
@@ -43,6 +49,7 @@ public class Signup {
             response.put("message", message);
             return new ResponseEntity<>(response, HttpStatus.CONFLICT);
         }
+
         String token = jwtToken.createJwtToken(userDto);
         String message = "Account created successfully, redirecting you to login";
         Map<String, Object> response = new HashMap<>();
@@ -50,7 +57,10 @@ public class Signup {
         response.put("user", userDto);
         response.put("message", message);
 
-        boolean isSubscriberAddedToTopic = userService.subscriberAddedToTopic(signupRequest, "UserAccountNotifications");
+        //subscribe the user to the topic and send a welcome email
+        snsService.addSubscriberTopic(signupRequest, "UserAccountNotifications");
+        emailService.sendWelcomeEmail(signupRequest.getEmail(), signupRequest.getFirstName());
+
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 }

@@ -95,6 +95,8 @@ public class DynamoDbItemMapper {
         item.put("lastName", AttributeValue.builder().s(applicationDto.getLastName()).build());
         item.put("applicationDate", AttributeValue.builder().s(applicationDto.getApplicationDate()).build());
         item.put("applicationStatus", AttributeValue.builder().s(applicationDto.getApplicationStatus()).build());
+        item.put("isActive", AttributeValue.builder().s(applicationDto.getIsActive()).build());
+
         if (documentDetails != null) {
             if (documentDetails.containsKey("resume")) {
                 item.put("resumeDetails", convertMapToDynamoDbMap(documentDetails.get("resume")));
@@ -136,4 +138,44 @@ public class DynamoDbItemMapper {
         }
         return jobByIdMap;
     }
+
+    public Map<String, AttributeValue> toDynamoDbItemMap(FeedbackDto feedbackDto) {
+        Map<String, AttributeValue> item = new HashMap<>();
+        item.put("applicantEmail", AttributeValue.builder().s(feedbackDto.getApplicantEmail()).build());
+        item.put("jobId", AttributeValue.builder().s(feedbackDto.getJobId()).build());
+        item.put("feedbackDate", AttributeValue.builder().s(feedbackDto.getFeedbackDate()).build());
+        item.put("feedback", AttributeValue.builder().s(feedbackDto.getFeedback()).build());
+        item.put("status", AttributeValue.builder().s(feedbackDto.getStatus()).build());
+        return item;
+    }
+
+    public Map<String, AttributeValue> toDynamoDbItemMap(ReferralDto referralDto, Map<String, Map<String, String>> documentDetails) {
+        Map<String, AttributeValue> item = new HashMap<>();
+        item.put("referrerEmail", AttributeValue.builder().s(referralDto.getReferrerEmail()).build());
+        item.put("referrerName", AttributeValue.builder().s(referralDto.getReferrerName()).build());
+        item.put("fileName", AttributeValue.builder().s(referralDto.getFileName()).build());
+        item.put("createdAt", AttributeValue.builder().s(referralDto.getCreatedAt()).build());
+
+        if (documentDetails != null) {
+            if (documentDetails.containsKey("refereeResumeFile")) {
+                item.put("resumeDetails", convertMapToDynamoDbMap(documentDetails.get("refereeResumeFile")));
+            }
+        }
+        return item;
+    }
+
+    public List<FeedbackDto> toDynamoDbFeedbackDto(List<Map<String, AttributeValue>> items) {
+        List<FeedbackDto> feedbacks = new ArrayList<>();
+        for (Map<String, AttributeValue> item : items) {
+            FeedbackDto feedbackDto = new FeedbackDto();
+            feedbackDto.setApplicantEmail(item.get("applicantEmail").s());
+            feedbackDto.setJobId(item.get("jobId").s());
+            feedbackDto.setFeedbackDate(item.get("feedbackDate").s());
+            feedbackDto.setFeedback(item.get("feedback").s());
+            feedbackDto.setStatus(item.get("status").s());
+            feedbacks.add(feedbackDto);
+        }
+        return feedbacks;
+    }
+
 }

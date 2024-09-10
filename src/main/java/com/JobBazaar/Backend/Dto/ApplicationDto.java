@@ -17,6 +17,15 @@ public class ApplicationDto {
     private String firstName;
     private String lastName;
     private String applicationStatus;
+    private String isActive;
+
+    public String getIsActive() {
+        return isActive;
+    }
+
+    public void setIsActive(String isActive) {
+        this.isActive = isActive;
+    }
 
     public void setPosition(String position) {
         this.position = position;
@@ -29,9 +38,11 @@ public class ApplicationDto {
     public String getEmployerEmail() {
         return employerEmail;
     }
-    public String getPosition(){
+
+    public String getPosition() {
         return position;
     }
+
     public void setApplicationStatus(String applicationStatus) {
         this.applicationStatus = applicationStatus;
     }

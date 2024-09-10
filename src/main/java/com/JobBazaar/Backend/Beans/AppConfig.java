@@ -3,34 +3,17 @@ package com.JobBazaar.Backend.Beans;
 import com.JobBazaar.Backend.JwtToken.JwtAuthenticationFilter;
 import com.JobBazaar.Backend.JwtToken.JwtTokenService;
 import com.JobBazaar.Backend.Mappers.DynamoDbItemMapper;
-import com.JobBazaar.Backend.Repositories.ApplicationRepository;
-import com.JobBazaar.Backend.Repositories.EducationRepository;
-import com.JobBazaar.Backend.Repositories.FilesUploadRepository;
-import com.JobBazaar.Backend.Repositories.JobRepository;
-import com.JobBazaar.Backend.Repositories.SnsRepository;
-import com.JobBazaar.Backend.Repositories.UserRepository;
-import com.JobBazaar.Backend.Repositories.WorkRepository;
-import com.JobBazaar.Backend.Services.ApplicationService;
-import com.JobBazaar.Backend.Services.EducationService;
-import com.JobBazaar.Backend.Services.FilesUploadService;
-import com.JobBazaar.Backend.Services.ImageSearchService;
-import com.JobBazaar.Backend.Services.JobService;
-import com.JobBazaar.Backend.Services.UserService;
-import com.JobBazaar.Backend.Services.WorkService;
+import com.JobBazaar.Backend.Repositories.*;
+import com.JobBazaar.Backend.Services.*;
 import com.JobBazaar.Backend.Utils.PasswordUtils;
 import com.JobBazaar.Backend.Utils.ShortUUIDGenerator;
-import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.ProviderManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
@@ -38,9 +21,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.client.RestTemplate;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
-import software.amazon.awssdk.auth.credentials.AwsCredentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
-import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -65,7 +46,7 @@ public class AppConfig {
 
     @Bean
     public AwsCredentialsProvider awsCredentialsProvider() {
-        return ()-> AwsBasicCredentials.create(accessKey, secretKey);
+        return () -> AwsBasicCredentials.create(accessKey, secretKey);
     }
 
     @Bean
@@ -144,12 +125,12 @@ public class AppConfig {
     }
 
     @Bean
-    public FilesUploadService filesUploadService(){
+    public FilesUploadService filesUploadService() {
         return new FilesUploadService(filesUploadRepository());
     }
 
     @Bean
-    public FilesUploadRepository filesUploadRepository(){
+    public FilesUploadRepository filesUploadRepository() {
         return new FilesUploadRepository(s3Client());
     }
 
@@ -159,7 +140,7 @@ public class AppConfig {
     }
 
     @Bean
-    public S3Client s3Client(){
+    public S3Client s3Client() {
         return S3Client.builder().region(Region.of(region)).credentialsProvider(awsCredentialsProvider()).build();
     }
 
@@ -190,15 +171,6 @@ public class AppConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(UserService userService) {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setUserDetailsService(userService);
-        provider.setPasswordEncoder(new BCryptPasswordEncoder());
-
-        return new ProviderManager(provider);
-    }
-
-    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .authorizeHttpRequests(auth -> {
@@ -213,5 +185,40 @@ public class AppConfig {
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
                 .addFilterBefore(new JwtAuthenticationFilter(jwtToken()), UsernamePasswordAuthenticationFilter.class)
                 .build();
+    }
+
+//    @Bean
+//    public JavaMailSender mailSender() {
+//        return new JavaMailSenderImpl();
+//    }
+
+    @Bean
+    public EmailService emailService() {
+        return new EmailService();
+    }
+
+    @Bean
+    public FeedbackService feedbackService() {
+        return new FeedbackService(feedbackRepository());
+    }
+
+    @Bean
+    FeedbackRepository feedbackRepository() {
+        return new FeedbackRepository(dynamoDbClient(), dynamoDbItemMapper());
+    }
+
+    @Bean
+    ReferralsService referralsService() {
+        return new ReferralsService(referralsRepository());
+    }
+
+    @Bean
+    ReferralsRepository referralsRepository() {
+        return new ReferralsRepository(dynamoDbClient(), dynamoDbItemMapper(), s3Client());
+    }
+
+    @Bean
+    public SnsService snsService() {
+        return new SnsService(snsRepository());
     }
 }
