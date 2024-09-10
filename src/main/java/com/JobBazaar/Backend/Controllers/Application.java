@@ -39,7 +39,6 @@ public class Application {
     ) throws IOException {
         LOGGER.info("Received request to add a new application");
 
-
         List<String> fileNames = new ArrayList<>();
         fileNames.add(resumeFile.getOriginalFilename());
 
