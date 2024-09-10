@@ -20,7 +20,7 @@ Repository Layer: Directly interacts with the DynamoDB database for CRUD operati
 
 ## AWS Services
 1. ## Amazon DynamoDB:
-   We use DynamoDB for storing all job-related and user-related data. We manage the following tables:
+   I use DynamoDB for storing all job-related and user-related data. I manage the following tables:
 
     a. Applications: Stores data for job applications.  
     b. Education: Stores user education background.  
