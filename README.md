@@ -3,8 +3,8 @@ This repository contains the backend code for the Job Bazaar application. It is 
 with various AWS services such as DynamoDB, S3, and SNS.
 
 ## Technologies Used
-Java
 
+Java
 Spring Boot: For creating a RESTful API and handling the application’s backend logic.
 
 AWS DynamoDB: Used as the primary database for storing job-related data.
