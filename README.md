@@ -43,13 +43,13 @@ Sensitive information such as API keys, secretKey, accessKeyId, and secretAccess
 Make sure to set up your own application.yml with the required credentials before running the application.
 
 aws:
-  accessKeyId: YOUR_ACCESS_KEY_ID  
-  secretAccessKey: YOUR_SECRET_ACCESS_KEY  
-  region: YOUR_AWS_REGION  
-  s3:  
-    bucket-name: YOUR_S3_BUCKET_NAME  
-  sns:  
-    topic-arn: YOUR_SNS_TOPIC_ARN  
+     accessKeyId: YOUR_ACCESS_KEY_ID  
+     secretAccessKey: YOUR_SECRET_ACCESS_KEY  
+     region: YOUR_AWS_REGION  
+     s3:  
+       bucket-name: YOUR_S3_BUCKET_NAME  
+     sns:  
+    t   topic-arn: YOUR_SNS_TOPIC_ARN  
 
 ## Getting Started
 ### Prerequisites
