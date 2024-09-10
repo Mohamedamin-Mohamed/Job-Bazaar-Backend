@@ -4,26 +4,19 @@ with various AWS services such as DynamoDB, S3, and SNS.
 
 ## Technologies Used
 
-Java
-
-Spring Boot: For creating a RESTful API and handling the application’s backend logic.
-
-AWS DynamoDB: Used as the primary database for storing job-related data.
-
-AWS S3: For storing user resumes and additional documents securely.
-
-AWS SNS: Simple Notification Service (SNS) for subscribing users to a topic for updates when they sign up.
-
-AWS SDK: To integrate with AWS services such as S3, SNS, and DynamoDB.
+Java  
+Spring Boot: For creating a RESTful API and handling the application’s backend logic.  
+AWS DynamoDB: Used as the primary database for storing job-related data.  
+AWS S3: For storing user resumes and additional documents securely.  
+AWS SNS: Simple Notification Service (SNS) for subscribing users to a topic for updates when they sign up.  
+AWS SDK: To integrate with AWS services such as S3, SNS, and DynamoDB.  
 
 ## Architecture
 This project follows the Controller-Service-Repository design pattern for separating concerns:
 
-Controller Layer: Handles HTTP requests, validates input, and returns responses.
-
-Service Layer: Contains the business logic for the application, interacting with the repository layer.
-
-Repository Layer: Directly interacts with the DynamoDB database for CRUD operations.
+Controller Layer: Handles HTTP requests, validates input, and returns responses.  
+Service Layer: Contains the business logic for the application, interacting with the repository layer.  
+Repository Layer: Directly interacts with the DynamoDB database for CRUD operations.  
 
 ## AWS Services
 1. ## Amazon DynamoDB:
@@ -38,17 +31,15 @@ Repository Layer: Directly interacts with the DynamoDB database for CRUD operati
     g. Users: Stores user information.  
     h. Work: Stores user work experience.  
 2. ## Amazon S3:
-    User resumes and additional documents (such as referrals) are uploaded to and stored in an S3 bucket.
-    
+    User resumes and additional documents (such as referrals) are uploaded to and stored in an S3 bucket.  
     The backend handles the process of uploading and retrieving files from S3.
 
 3. ## Amazon SNS:
-   SNS is used to subscribe users to a topic when they first sign up.
-   
+   SNS is used to subscribe users to a topic when they first sign up.  
    Notifications are sent to users through SNS for job updates and application statuses.
+   
 ## Security and Credentials
-Sensitive information such as API keys, secretKey, accessKeyId, and secretAccessKey required for AWS services (S3, SNS, and DynamoDB) are securely stored in the application.yml file and are not included in the public repository for security reasons.
-
+Sensitive information such as API keys, secretKey, accessKeyId, and secretAccessKey required for AWS services (S3, SNS, and DynamoDB) are securely stored in the application.yml file and are not included in the public repository for security reasons.  
 Make sure to set up your own application.yml with the required credentials before running the application.
 
 aws:
@@ -62,10 +53,8 @@ aws:
 
 ## Getting Started
 ### Prerequisites
-Java 11+
-
-Maven
-
+Java 11+  
+Maven  
 AWS Account with access to DynamoDB, S3, and SNS
 
 ### Installation
