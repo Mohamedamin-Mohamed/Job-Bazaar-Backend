@@ -59,7 +59,7 @@ AWS Account with access to DynamoDB, S3, and SNS
 
 ### Installation
 1. Clone the repository:
-   git clone [https://github.com/your-username/Job-Bazaar-Backend.git]  
+   git clone (https://github.com/Mohamedamin-Mohamed/Job-Bazaar-Backend.git)  
    cd Job-Bazaar-Backend  
 2. Configure AWS Credentials: Set your AWS credentials for S3, SNS, and DynamoDB access.
 3. Run the application: mvn spring-boot:run
