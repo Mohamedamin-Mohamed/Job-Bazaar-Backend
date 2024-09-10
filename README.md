@@ -29,14 +29,14 @@ Repository Layer: Directly interacts with the DynamoDB database for CRUD operati
 1. ## Amazon DynamoDB:
    We use DynamoDB for storing all job-related and user-related data. We manage the following tables:
 
-    a. Applications: Stores data for job applications.
-    b. Education: Stores user education background.
-    c. Feedback: Stores feedback for job applications.
-    d. Jobs: Stores information on job postings.
-    e. Referrals: Stores referrals made by users.
-    f. Store_Topic_Arn: Stores the SNS Topic ARNs for each user to send notifications.
-    g. Users: Stores user information.
-    h. Work: Stores user work experience.
+    a. Applications: Stores data for job applications.  
+    b. Education: Stores user education background.  
+    c. Feedback: Stores feedback for job applications.  
+    d. Jobs: Stores information on job postings.  
+    e. Referrals: Stores referrals made by users.  
+    f. Store_Topic_Arn: Stores the SNS Topic ARNs for each user to send notifications.  
+    g. Users: Stores user information.  
+    h. Work: Stores user work experience.  
 2. ## Amazon S3:
     User resumes and additional documents (such as referrals) are uploaded to and stored in an S3 bucket.
     
