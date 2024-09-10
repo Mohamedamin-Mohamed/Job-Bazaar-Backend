@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -20,16 +19,14 @@ import java.util.Map;
 @RequestMapping("/accounts/login")
 public class Login {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(Login.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Login.class);
 
     private final UserService userService;
-    private final AuthenticationManager authenticationManager;
     private final JwtTokenService jwtToken;
 
     @Autowired
-    public Login(UserService userService, AuthenticationManager authenticationManager, JwtTokenService jwtToken) {
+    public Login(UserService userService, JwtTokenService jwtToken) {
         this.userService = userService;
-        this.authenticationManager = authenticationManager;
         this.jwtToken = jwtToken;
     }
 
@@ -73,7 +70,7 @@ public class Login {
         if (!userExists) {
             return new ResponseEntity<>("We couldn't find your email, please make an account first!", HttpStatus.NOT_FOUND);
         }
-            return new ResponseEntity<>("Email address found, reset your password", HttpStatus.OK);
+        return new ResponseEntity<>("Email address found, reset your password", HttpStatus.OK);
     }
 
     @PostMapping("/password-reset/")
@@ -84,6 +81,6 @@ public class Login {
         if (passwordChanged) {
             return new ResponseEntity<>("Password Reset Successful, redirecting you to Login", HttpStatus.OK);
         }
-            return new ResponseEntity<>("User Account not found, Sign up", HttpStatus.UNAUTHORIZED);
+        return new ResponseEntity<>("User Account not found, Sign up", HttpStatus.UNAUTHORIZED);
     }
 }
