@@ -47,6 +47,7 @@ public class SnsRepository {
     public void addSubscriberToTopic(SignupRequestDto signupRequest, String topicName) {
         LOGGER.info("Getting TopicArn for subscriber");
         String topicArn = getTopicArn(topicName);
+
         if (topicArn != null) {
             final SubscribeRequest subscribeRequest = SubscribeRequest.builder().topicArn(topicArn).protocol("email")
                     .endpoint(signupRequest.getEmail()).build();
@@ -64,7 +65,6 @@ public class SnsRepository {
                 LOGGER.warning(exp.toString());
                 throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, exp.toString());
             }
-        }
     }
 
     public String getTopicArn(String topicName) {
