@@ -1,112 +1,164 @@
 package com.JobBazaar.Backend.Controllers;
+
+import com.JobBazaar.Backend.Dto.PasswordResetDto;
 import com.JobBazaar.Backend.Dto.RequestDto;
+import com.JobBazaar.Backend.Dto.UserDto;
+import com.JobBazaar.Backend.JwtToken.JwtTokenService;
 import com.JobBazaar.Backend.Services.UserService;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
-import static org.junit.jupiter.api.Assertions.*;
+
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class LoginTest {
     @Mock
-    private UserService userService;
+    UserService userService;
+
+    @Mock
+    JwtTokenService jwtTokenService;
 
     @InjectMocks
-    private Login login;
+    Login login;
 
-    private RequestDto requestDto;
-
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-        requestDto = new RequestDto();
+    @Test
+    void checkCredentialsValid() {
+        RequestDto requestDto = new RequestDto();
         requestDto.setEmail("test@test.com");
         requestDto.setPass("password");
-    }
 
-    @Test
-    @DisplayName("Test to check when the users credentials is correct")
-    void testCheckCredentials_True_PasswordMatches(){
-        when(userService.userExists(requestDto)).thenReturn(true);
-        when(userService.passwordMatches(requestDto)).thenReturn(true);
+        UserDto userDto = new UserDto();
+        userDto.setEmail("test@test.com");
+        userDto.setFirstName("Test");
+        userDto.setLastName("Com");
+        userDto.setRole("Employer");
+        userDto.setCreatedAt("01-01-2024");
 
-        ResponseEntity<String> response = login.checkCredentials(requestDto);
+        String token = "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJKb2IgQmF6YWFyIEFQSSIsInN1YiI6Im1vaGFtZWRhbWluMjA0MDgwQGdtYWlsLmNvbSIsInJvbGUiOiJFbXBsb3llciIsImV4cCI6MTcyNjQ4NTM2MywiaWF0IjoxNzI2NDQyMTYzfQ.D2gMU0_O5PbeKPwE0dTyqxdX0X7KwYkOLc2lyHKes_I";
+        String message = "Login Successful";
 
-        assertEquals(200, response.getStatusCode().value());
+        when(userService.userExists(any(RequestDto.class))).thenReturn(true);
+        when(userService.passwordMatches(any(RequestDto.class))).thenReturn(true);
+        when(userService.getUsersInfo(anyString())).thenReturn(userDto);
+        when(jwtTokenService.createJwtToken(any(UserDto.class))).thenReturn(token);
+
+
+        ResponseEntity<Object> response = login.checkCredentials(requestDto);
+
+        @SuppressWarnings("unchecked")
+        Map<String, Object> responseMap = (Map<String, Object>) response.getBody();
+
+        assertNotNull(responseMap);
+        assertEquals(3, responseMap.size());
+        assertEquals(token, responseMap.get("token"));
+        assertEquals(userDto, responseMap.get("user"));
+        assertEquals(message, responseMap.get("message"));
+        assertEquals(201, response.getStatusCode().value());
+
         verify(userService, times(1)).userExists(any(RequestDto.class));
-        verify(userService, times(1)).passwordMatches(any(RequestDto.class));
+        verify(jwtTokenService, times(1)).createJwtToken(any(UserDto.class));
     }
 
     @Test
-    @DisplayName("Test to check when the users email is correct but password is incorrect")
-    void testCheckCredentials_True_PasswordDoesNotMatch(){
-        when(userService.userExists(requestDto)).thenReturn(true);
-        when(userService.passwordMatches(requestDto)).thenReturn(false);
+    void checkCredentialsUserDoesntExist() {
+        RequestDto requestDto = new RequestDto();
+        requestDto.setEmail("test@test.com");
+        requestDto.setPass("password");
 
-        ResponseEntity<String> response = login.checkCredentials(requestDto);
-
-        assertEquals(401, response.getStatusCode().value());
-        verify(userService, times(1)).userExists(any(RequestDto.class));
-        verify(userService, times(1)).passwordMatches(any(RequestDto.class));
-    }
-
-    @Test
-    @DisplayName("Test to check when the users email doesn't exist")
-    void testCheckCredentials_False_UserDoesNotExist(){
-        when(userService.userExists(requestDto)).thenReturn(false);
-
-        ResponseEntity<String> response = login.checkCredentials(requestDto);
-
-        assertEquals(404, response.getStatusCode().value());
-        verify(userService, times(1)).userExists(any(RequestDto.class));
-    }
-
-    @Test
-    @DisplayName("Test to check when the users email doesn't exist")
-    void testEmailLookup_UserDoesNotExist(){
         when(userService.userExists(any(RequestDto.class))).thenReturn(false);
 
-        ResponseEntity<String> response = login.emailLookup(requestDto.getEmail());
+        ResponseEntity<Object> response = login.checkCredentials(requestDto);
 
+        assertNotNull(response);
         assertEquals(404, response.getStatusCode().value());
-        verify(userService, times(1)).userExists(any(RequestDto.class));
+        assertEquals("Incorrect Email Address", response.getBody());
     }
 
     @Test
-    @DisplayName("Test to check when the users email exists")
-    void testEmailLookup_UserExists(){
+    void checkCredentialsUserExistsButBadCredentials() {
+        RequestDto requestDto = new RequestDto();
+        requestDto.setEmail("test@test.com");
+        requestDto.setPass("password");
+
+        when(userService.userExists(any(RequestDto.class))).thenReturn(true);
+        when(userService.passwordMatches(any(RequestDto.class))).thenReturn(false);
+
+        ResponseEntity<Object> response = login.checkCredentials(requestDto);
+
+        assertNotNull(response);
+        assertEquals(401, response.getStatusCode().value());
+        assertEquals("Incorrect Password", response.getBody());
+    }
+
+    @Test
+    void emailLookupUserExists() {
+        String email = "test@test.com";
+
         when(userService.userExists(any(RequestDto.class))).thenReturn(true);
 
-        ResponseEntity<String> response = login.emailLookup(requestDto.getEmail());
+        ResponseEntity<String> response = login.emailLookup(email);
 
+        assertNotNull(response);
         assertEquals(200, response.getStatusCode().value());
-        verify(userService, times(1)).userExists(any(RequestDto.class));
+        assertEquals("Email address found, reset your password", response.getBody());
     }
 
     @Test
-    @DisplayName("Test to check when the users password has been reset successful")
-    void testPasswordResetSuccessful(){
-        when(userService.updateUser(any(RequestDto.class))).thenReturn(true);
+    void emailLookupUserDoesntExist() {
+        String email = "test@test.com";
 
-        ResponseEntity<String> response = login.resetPassword(requestDto);
+        when(userService.userExists(any(RequestDto.class))).thenReturn(false);
 
-        assertEquals(200, response.getStatusCode().value());
-        verify(userService, times(1)).updateUser(any(RequestDto.class));
+        ResponseEntity<String> response = login.emailLookup(email);
+
+        assertNotNull(response);
+        assertEquals(404, response.getStatusCode().value());
+        assertEquals("We couldn't find your email, please make an account first!", response.getBody());
     }
 
     @Test
-    @DisplayName("Test to check when the users password reset has failed")
-    void testPasswordResetFailure(){
-        when(userService.updateUser(any(RequestDto.class))).thenReturn(false);
+    void resetPasswordSuccessful() {
+        PasswordResetDto passwordResetDto = new PasswordResetDto();
+        passwordResetDto.setFirstName("Test");
+        passwordResetDto.setLastName("Com");
+        passwordResetDto.setPassword("Password");
+        passwordResetDto.setRole("Applicant");
+        passwordResetDto.setCreatedAt("01-01-2024");
 
-        ResponseEntity<String> response = login.resetPassword(requestDto);
+        when(userService.updateUser(any(PasswordResetDto.class))).thenReturn(true);
 
+        ResponseEntity<String> response = login.resetPassword(passwordResetDto);
+
+        assertNotNull(response);
+        assertEquals(200, response.getStatusCode().value());
+        verify(userService, times(1)).updateUser(any(PasswordResetDto.class));
+    }
+
+    @Test
+    void resetPasswordUnsuccessful() {
+        PasswordResetDto passwordResetDto = new PasswordResetDto();
+        passwordResetDto.setFirstName("Test");
+        passwordResetDto.setLastName("Com");
+        passwordResetDto.setPassword("Password");
+        passwordResetDto.setRole("Applicant");
+        passwordResetDto.setCreatedAt("01-01-2024");
+
+        when(userService.updateUser(any(PasswordResetDto.class))).thenReturn(false);
+
+        ResponseEntity<String> response = login.resetPassword(passwordResetDto);
+
+        assertNotNull(response);
         assertEquals(401, response.getStatusCode().value());
-        verify(userService, times(1)).updateUser(any(RequestDto.class));
+        verify(userService).updateUser(any(PasswordResetDto.class));
     }
-
 }
