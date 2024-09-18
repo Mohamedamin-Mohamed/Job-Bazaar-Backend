@@ -6,12 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.server.ResponseStatusException;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
-import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
-import software.amazon.awssdk.services.dynamodb.model.DynamoDbException;
-import software.amazon.awssdk.services.dynamodb.model.GetItemRequest;
-import software.amazon.awssdk.services.dynamodb.model.GetItemResponse;
-import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
-import software.amazon.awssdk.services.dynamodb.model.PutItemResponse;
+import software.amazon.awssdk.services.dynamodb.model.*;
 import software.amazon.awssdk.services.sns.SnsClient;
 import software.amazon.awssdk.services.sns.model.SubscribeRequest;
 import software.amazon.awssdk.services.sns.model.SubscribeResponse;
@@ -52,8 +47,7 @@ public class SnsRepository {
     public void addSubscriberToTopic(SignupRequestDto signupRequest, String topicName) {
         LOGGER.info("Getting TopicArn for subscriber");
         String topicArn = getTopicArn(topicName);
-        if (topicArn == null) return;
-        else {
+        if (topicArn != null) {
             final SubscribeRequest subscribeRequest = SubscribeRequest.builder().topicArn(topicArn).protocol("email")
                     .endpoint(signupRequest.getEmail()).build();
             try {
