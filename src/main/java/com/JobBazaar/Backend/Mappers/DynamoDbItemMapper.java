@@ -108,7 +108,7 @@ public class DynamoDbItemMapper {
         return item;
     }
 
-    private AttributeValue convertMapToDynamoDbMap(Map<String, String> map) {
+    public AttributeValue convertMapToDynamoDbMap(Map<String, String> map) {
         Map<String, AttributeValue> dynamoDbMap = new HashMap<>();
         for (Map.Entry<String, String> entry : map.entrySet()) {
             dynamoDbMap.put(entry.getKey(), AttributeValue.builder().s(entry.getValue()).build());
