@@ -42,16 +42,14 @@ public class Application {
         List<String> fileNames = new ArrayList<>();
         fileNames.add(resumeFile.getOriginalFilename());
 
-        if (additionalDocFile != null) {
-            fileNames.add(additionalDocFile.getOriginalFilename());
-        }
-
         Map<String, byte[]> map = new HashMap<>();
         map.put("resume", resumeFile.getBytes());
 
         if (additionalDocFile != null) {
+            fileNames.add(additionalDocFile.getOriginalFilename());
             map.put("additionalDoc", additionalDocFile.getBytes());
         }
+
         Map<String, Map<String, String>> fileUploadedToS3Info = filesUploadService.uploadFile(map, fileNames);
         boolean applicationAdded = applicationService.addApplication(applicationDto, fileUploadedToS3Info);
 
@@ -93,7 +91,7 @@ public class Application {
 
         List<Map<String, Object>> jobsAppliedToUsers = applicationService.getJobsAppliedToUsers(jobId);
 
-        if(!jobsAppliedToUsers.isEmpty()){
+        if (!jobsAppliedToUsers.isEmpty()) {
             ResponseEntity.ok(jobsAppliedToUsers);
         }
         return jobsAppliedToUsers;
@@ -109,9 +107,8 @@ public class Application {
         boolean isUpdated = applicationService.updateApplicationStatus(applicantEmail, jobId, statusRequest);
 
         if (isUpdated) {
-            return ResponseEntity.noContent().build();
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.ok().build();
         }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 }
