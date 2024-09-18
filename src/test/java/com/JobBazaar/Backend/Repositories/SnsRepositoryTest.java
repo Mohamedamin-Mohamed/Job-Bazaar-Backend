@@ -42,7 +42,7 @@ class SnsRepositoryTest {
     }
 
     @Test
-    void safeTopicArnSuccessful() {
+    void saveTopicArnSuccessful() {
         String topic = "topic";
         String arn = "arn";
         PutItemResponse response = (PutItemResponse) PutItemResponse.builder().sdkHttpResponse(null).build();
@@ -111,9 +111,8 @@ class SnsRepositoryTest {
 
         when(snsClient.subscribe(any(SubscribeRequest.class))).thenReturn(response);
 
-        boolean result = snsRepository.addSubscriberToTopic(signupRequestDto, topic);
+        snsRepository.addSubscriberToTopic(signupRequestDto, topic);
 
-        assertTrue(result);
         verify(snsClient).subscribe(any(SubscribeRequest.class));
         verify(snsClient).close();
     }
@@ -122,9 +121,7 @@ class SnsRepositoryTest {
     void addSubscriberToTopic_InvalidTopic(){
         doReturn(null).when(snsRepository).getTopicArn(anyString());
 
-        boolean result = snsRepository.addSubscriberToTopic(new SignupRequestDto(), "");
-
-        assertFalse(result);
+        snsRepository.addSubscriberToTopic(new SignupRequestDto(), "");
     }
 
     @Test

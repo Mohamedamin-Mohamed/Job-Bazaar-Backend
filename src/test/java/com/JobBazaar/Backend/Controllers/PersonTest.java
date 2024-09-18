@@ -1,18 +1,19 @@
 package com.JobBazaar.Backend.Controllers;
 
-import com.JobBazaar.Backend.Dto.UserNames;
+import com.JobBazaar.Backend.Dto.UserDto;
 import com.JobBazaar.Backend.Services.UserService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class PersonTest {
     @Mock
     UserService userService;
@@ -20,32 +21,37 @@ class PersonTest {
     @InjectMocks
     Person person;
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
+    @Test
+    void getPersonSucceeds() {
+        String email = "test@test.com";
+
+        UserDto userDto = new UserDto();
+        userDto.setFirstName("Test");
+        userDto.setLastName("Com");
+        userDto.setEmail("test@test.com");
+        userDto.setRole("Employer");
+        userDto.setCreatedAt("01-01-2024");
+
+        when(userService.getUsersInfo(anyString())).thenReturn(userDto);
+
+        ResponseEntity<UserDto> response = person.getPerson(email);
+        UserDto userDtoResponse = response.getBody();
+
+        assertNotNull(userDtoResponse);
+        assertEquals("test@test.com", userDtoResponse.getEmail());
+        assertEquals("Employer", userDtoResponse.getRole());
+        verify(userService, times(1)).getUsersInfo(anyString());
     }
 
     @Test
-    void getPersonNotNull(){
-        UserNames names = new UserNames();
-        names.setFirstName("test");
-        names.setLastName("com");
-
-        when(userService.getUsersInfo(anyString())).thenReturn(names);
-
-        ResponseEntity<UserNames> response = person.getPerson(anyString());
-
-        assertEquals(200, response.getStatusCode().value());
-        verify(userService).getUsersInfo(anyString());
-    }
-    @Test
-    void getPersonNull(){
+    void getPersonFails() {
+        String email = "test@test.com";
         when(userService.getUsersInfo(anyString())).thenReturn(null);
 
-        ResponseEntity<UserNames> response = person.getPerson(anyString());
+        ResponseEntity<UserDto> response = person.getPerson(email);
+        UserDto userDto = response.getBody();
 
+        assertNull(userDto);
         assertEquals(404, response.getStatusCode().value());
-        verify(userService).getUsersInfo(anyString());
     }
-
 }
