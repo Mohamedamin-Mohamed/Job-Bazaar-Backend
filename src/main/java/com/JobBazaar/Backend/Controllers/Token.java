@@ -25,9 +25,8 @@ public class Token {
     }
 
     @GetMapping("/")
-    public ResponseEntity<String> validateToken(@RequestHeader("Authorization") String authHeader,
-                                                @RequestParam(required = false) String email) {
-        LOGGER.info("Received request to check token " + authHeader);
+    public ResponseEntity<String> validateToken(@RequestHeader("Authorization") String authHeader) {
+        LOGGER.info("Received request to check token {}", authHeader);
         String token = authHeader.replace("Bearer ", "");
         boolean isValid = jwtTokenService.verifyJwtToken(token);
         if (isValid) {
