@@ -187,11 +187,6 @@ public class AppConfig {
                 .build();
     }
 
-//    @Bean
-//    public JavaMailSender mailSender() {
-//        return new JavaMailSenderImpl();
-//    }
-
     @Bean
     public EmailService emailService() {
         return new EmailService();

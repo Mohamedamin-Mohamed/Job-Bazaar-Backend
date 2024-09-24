@@ -65,6 +65,7 @@ public class SnsRepository {
                 LOGGER.warning(exp.toString());
                 throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, exp.toString());
             }
+        }
     }
 
     public String getTopicArn(String topicName) {
