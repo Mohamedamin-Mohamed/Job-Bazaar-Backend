@@ -63,7 +63,7 @@ AWS Account with access to DynamoDB, S3, and SNS
    cd Job-Bazaar-Backend  
 2. Configure AWS Credentials: Set your AWS credentials for S3, SNS, and DynamoDB access.
 3. Run the application: mvn spring-boot:run
-4. Access the API: The API will be available at http://localhost:8080
+4. Access the API: The API will be available at [http://localhost:8080]
 
 ## Contributing
 Contributions are welcome! Please follow the typical Git workflow:
