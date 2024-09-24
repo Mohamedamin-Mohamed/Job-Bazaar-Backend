@@ -27,7 +27,7 @@ Repository Layer: Directly interacts with the DynamoDB database for CRUD operati
     c. Feedback: Stores feedback for job applications.  
     d. Jobs: Stores information on job postings.  
     e. Referrals: Stores referrals made by users.  
-    f. Store_Topic_Arn: Stores the SNS Topic ARNs for each user to send notifications.  
+    f. Store_Topic_Arn: Stores the SNS Topic ARNs for easy retrieval to send notifications.  
     g. Users: Stores user information.  
     h. Work: Stores user work experience.  
 2. ## Amazon S3:
