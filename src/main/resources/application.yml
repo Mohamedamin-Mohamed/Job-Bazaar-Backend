@@ -1,0 +1,37 @@
+logging:
+  level:
+    org:
+      springframework:
+        mail: debug
+    java:
+      net: debug
+security:
+  jwt:
+    secret:
+      key: Mohztw8CY7MWShY8rop29xMuyAt3BgXB
+    issuer: Job Bazaar API
+
+external:
+  api:
+    key: AIzaSyA2DL6D565P86EeuOZwe3n1en_dXNkH9yk
+  cse:
+    key: 43a775949f03f427d
+
+aws:
+  accessKeyId: AKIA5FTZAH24YAYX7GVG
+  secretAccessKey: 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
+  region: us-east-2
+
+spring:
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: mohaa204080@gmail.com
+    password: pbvf dopi vymd isec
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
