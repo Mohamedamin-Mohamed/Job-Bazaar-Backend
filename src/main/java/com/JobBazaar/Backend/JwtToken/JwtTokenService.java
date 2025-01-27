@@ -41,7 +41,7 @@ public class JwtTokenService {
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer(jwtIssuer)
                 .issuedAt(now)
-                .expiresAt(now.plusSeconds(12 * 3600))
+                .expiresAt(now.plusSeconds(168 * 3600))
                 .subject(userDto.getEmail())
                 .claim("role", userDto.getRole())
                 .build();
@@ -65,7 +65,6 @@ public class JwtTokenService {
             //get claims
             Map<String, Object> decodedJwtClaims = decodedJwt.getClaims();
             String issuer = (String) decodedJwtClaims.get("iss");
-            String subject = (String) decodedJwtClaims.get("subj");
 
             //check issuer
             if (!issuer.equals(jwtIssuer)) {
