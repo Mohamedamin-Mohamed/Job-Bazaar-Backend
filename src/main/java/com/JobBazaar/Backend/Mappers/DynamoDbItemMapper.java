@@ -6,11 +6,8 @@ import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
 import java.text.ParseException;
 import java.util.*;
-import java.util.logging.Logger;
 
 public class DynamoDbItemMapper {
-
-    private static final Logger LOGGER = Logger.getLogger(DynamoDbItemMapper.class.getName());
 
     public Map<String, AttributeValue> toDynamoDbItemMap(AppUser user) {
         Map<String, AttributeValue> item = new HashMap<>();
@@ -29,7 +26,6 @@ public class DynamoDbItemMapper {
         item.put("school", AttributeValue.builder().s(educationDto.getSchool()).build());
         item.put("major", AttributeValue.builder().s(educationDto.getMajor()).build());
         item.put("degree", AttributeValue.builder().s(educationDto.getDegree()).build());
-        item.put("description", AttributeValue.builder().s(educationDto.getDescription()).build());
         item.put("startDate", AttributeValue.builder().s(educationDto.getStartDate()).build());
         item.put("endDate", AttributeValue.builder().s(educationDto.getEndDate()).build());
 
@@ -42,7 +38,6 @@ public class DynamoDbItemMapper {
         item.put("title", AttributeValue.builder().s(workDto.getTitle()).build());
         item.put("company", AttributeValue.builder().s(workDto.getCompany()).build());
         item.put("location", AttributeValue.builder().s(workDto.getLocation()).build());
-        item.put("description", AttributeValue.builder().s(workDto.getDescription()).build());
         item.put("startDate", AttributeValue.builder().s(workDto.getStartDate()).build());
         item.put("endDate", AttributeValue.builder().s(workDto.getEndDate()).build());
 
@@ -60,20 +55,20 @@ public class DynamoDbItemMapper {
         return item;
     }
 
-    public Map<String, AttributeValue> toDynamoDbItemMap(JobPostRequest jobPostRequest) {
+    public Map<String, AttributeValue> toDynamoDbItemMap(Job job) {
         Map<String, AttributeValue> item = new HashMap<>();
-        item.put("employerEmail", AttributeValue.builder().s(jobPostRequest.getEmployerEmail()).build());
-        item.put("jobId", AttributeValue.builder().s(jobPostRequest.getJobId()).build());
-        item.put("company", AttributeValue.builder().s(jobPostRequest.getCompany()).build());
-        item.put("position", AttributeValue.builder().s(jobPostRequest.getPosition()).build());
-        item.put("workPlace", AttributeValue.builder().s(jobPostRequest.getWorkPlace()).build());
-        item.put("location", AttributeValue.builder().s(jobPostRequest.getLocation()).build());
-        item.put("jobFunction", AttributeValue.builder().s(jobPostRequest.getJobFunction()).build());
-        item.put("jobType", AttributeValue.builder().s(jobPostRequest.getJobType()).build());
-        item.put("description", AttributeValue.builder().s(jobPostRequest.getDescription()).build());
-        item.put("requirements", AttributeValue.builder().s(jobPostRequest.getRequirements()).build());
-        item.put("postedDate", AttributeValue.builder().s(jobPostRequest.getPostedDate()).build());
-        item.put("jobStatus", AttributeValue.builder().s(jobPostRequest.getJobStatus()).build());
+        item.put("employerEmail", AttributeValue.builder().s(job.getEmployerEmail()).build());
+        item.put("jobId", AttributeValue.builder().s(job.getJobId()).build());
+        item.put("company", AttributeValue.builder().s(job.getCompany()).build());
+        item.put("position", AttributeValue.builder().s(job.getPosition()).build());
+        item.put("workPlace", AttributeValue.builder().s(job.getWorkPlace()).build());
+        item.put("location", AttributeValue.builder().s(job.getLocation()).build());
+        item.put("jobFunction", AttributeValue.builder().s(job.getJobFunction()).build());
+        item.put("jobType", AttributeValue.builder().s(job.getJobType()).build());
+        item.put("description", AttributeValue.builder().s(job.getDescription()).build());
+        item.put("requirements", AttributeValue.builder().s(job.getRequirements()).build());
+        item.put("postedDate", AttributeValue.builder().s(job.getPostedDate()).build());
+        item.put("jobStatus", AttributeValue.builder().s(job.getJobStatus()).build());
         return item;
     }
 
@@ -89,7 +84,11 @@ public class DynamoDbItemMapper {
         item.put("postalCode", AttributeValue.builder().s(applicationDto.getPostalCode()).build());
         item.put("gender", AttributeValue.builder().s(applicationDto.getGender()).build());
         item.put("nationality", AttributeValue.builder().s(applicationDto.getNationality()).build());
-        item.put("additionalDocName", AttributeValue.builder().s(applicationDto.getAdditionalDocName()).build());
+
+        if (applicationDto.getAdditionalDocName() != null) {
+            item.put("additionalDocName", AttributeValue.builder().s(applicationDto.getAdditionalDocName()).build());
+        }
+
         item.put("employerContact", AttributeValue.builder().s(applicationDto.getEmployerContact()).build());
         item.put("firstName", AttributeValue.builder().s(applicationDto.getFirstName()).build());
         item.put("lastName", AttributeValue.builder().s(applicationDto.getLastName()).build());
