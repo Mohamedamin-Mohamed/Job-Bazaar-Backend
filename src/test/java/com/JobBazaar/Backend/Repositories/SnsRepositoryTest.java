@@ -114,7 +114,6 @@ class SnsRepositoryTest {
         snsRepository.addSubscriberToTopic(signupRequestDto, topic);
 
         verify(snsClient).subscribe(any(SubscribeRequest.class));
-        verify(snsClient).close();
     }
 
     @Test

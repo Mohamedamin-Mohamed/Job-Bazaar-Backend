@@ -3,7 +3,9 @@ package com.JobBazaar.Backend.Controllers;
 import com.JobBazaar.Backend.Dto.ApplicationDto;
 import com.JobBazaar.Backend.Dto.UpdateApplicationStatusRequest;
 import com.JobBazaar.Backend.Services.ApplicationService;
+import com.JobBazaar.Backend.Services.EmailService;
 import com.JobBazaar.Backend.Services.FilesUploadService;
+import com.mailjet.client.resource.Email;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -26,6 +28,9 @@ class ApplicationTest {
 
     @Mock
     FilesUploadService filesUploadService;
+
+    @Mock
+    EmailService emailService;
 
     @InjectMocks
     Application application;

@@ -1,8 +1,11 @@
 package com.JobBazaar.Backend.Controllers;
 
-import com.JobBazaar.Backend.Dto.JobPostRequest;
+import com.JobBazaar.Backend.Dto.Job;
 import com.JobBazaar.Backend.Dto.UpdateJobStatusRequest;
+import com.JobBazaar.Backend.Dto.UserDto;
+import com.JobBazaar.Backend.Services.EmailService;
 import com.JobBazaar.Backend.Services.JobService;
+import com.JobBazaar.Backend.Services.UserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -10,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
 
+import java.io.IOException;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -21,24 +25,37 @@ class JobsTest {
     @Mock
     JobService jobService;
 
+    @Mock
+    UserService userService;
+
+    @Mock
+    EmailService emailService;
+
     @InjectMocks
     Jobs jobs;
 
     @Test
-    void createJob_Successful() {
-        when(jobService.createJob(any(JobPostRequest.class))).thenReturn(true);
+    void createJob_Successful() throws IOException {
+        UserDto userDto = new UserDto();
+        userDto.setFirstName("Test");
+        userDto.setLastName("test");
+        userDto.setRole("Employer");
 
-        ResponseEntity<String> response = jobs.createJob(new JobPostRequest());
+        when(userService.getUsersInfo(null)).thenReturn(userDto);
+        when(jobService.createJob(any(Job.class))).thenReturn(true);
+
+        ResponseEntity<String> response = jobs.createJob(new Job());
         assertNotNull(response);
         assertEquals(201, response.getStatusCode().value());
         assertTrue(Objects.requireNonNull(response.getBody()).startsWith("Job created"));
     }
 
-    @Test
-    void createJob_Fails() {
-        when(jobService.createJob(any(JobPostRequest.class))).thenReturn(false);
 
-        ResponseEntity<String> response = jobs.createJob(new JobPostRequest());
+    @Test
+    void createJob_Fails() throws IOException {
+        when(jobService.createJob(any(Job.class))).thenReturn(false);
+
+        ResponseEntity<String> response = jobs.createJob(new Job());
         assertNotNull(response);
         assertEquals(500, response.getStatusCode().value());
         assertTrue(Objects.requireNonNull(response.getBody()).startsWith("Couldn't create"));
