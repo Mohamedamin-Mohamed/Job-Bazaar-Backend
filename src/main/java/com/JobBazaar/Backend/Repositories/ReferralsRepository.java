@@ -2,9 +2,14 @@ package com.JobBazaar.Backend.Repositories;
 
 import com.JobBazaar.Backend.Dto.ReferralDto;
 import com.JobBazaar.Backend.Mappers.DynamoDbItemMapper;
+import com.JobBazaar.Backend.config.RedisConfig;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import redis.clients.jedis.Jedis;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.*;
@@ -27,11 +32,15 @@ public class ReferralsRepository {
     private final S3Client s3Client;
     private final String REFERRALS = "Referrals";
 
+    private final RedisConfig redisConfig;
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
     @Autowired
-    public ReferralsRepository(DynamoDbClient client, DynamoDbItemMapper mapper, S3Client s3Client) {
+    public ReferralsRepository(DynamoDbClient client, DynamoDbItemMapper mapper, S3Client s3Client, RedisConfig redisConfig) {
         this.client = client;
         this.dynamoDbItemMapper = mapper;
         this.s3Client = s3Client;
+        this.redisConfig = redisConfig;
     }
 
     public boolean addReferral(ReferralDto referralDto, Map<String, Map<String, String>> fileUploadedToS3Info) throws IOException {
@@ -51,7 +60,23 @@ public class ReferralsRepository {
     }
 
     public List<Map<String, Object>> getReferrals(String referrerEmail) {
-        LOGGER.info("Retrieving referrals for {}", referrerEmail);
+        LOGGER.info("Retrieving referrals for {} from cache", referrerEmail);
+
+        String redisKey = "referrals:referredBy:" + referrerEmail;
+        try (Jedis jedis = redisConfig.connect()) {
+            if (jedis.exists(redisKey)) {
+                LOGGER.info("Cache hit for referrals referred by {}", referrerEmail);
+                String cachedResult = jedis.get(redisKey);
+                return objectMapper.readValue(cachedResult, new TypeReference<List<Map<String, Object>>>() {
+                });
+            }
+        } catch (Exception exp) {
+            LOGGER.error("Unable to retrieve referrals by {} from cache", referrerEmail);
+            throw new RuntimeException(exp);
+        }
+
+        LOGGER.info("Cache miss, retrieving {} referrals from database", referrerEmail);
+
         Map<String, AttributeValue> expressionValues = new HashMap<>();
         expressionValues.put(":email", AttributeValue.builder().s(referrerEmail).build());
         String filterExpression = "referrerEmail = :email";
@@ -59,26 +84,7 @@ public class ReferralsRepository {
                 filterExpression(filterExpression).
                 expressionAttributeValues(expressionValues).build();
 
-        try {
-            ScanResponse scanResponse = client.scan(scanRequest);
-            List<Map<String, AttributeValue>> items = scanResponse.items();
-
-            return items.stream().map(item -> {
-                Map<String, Object> objectMap = new HashMap<>();
-
-                item.forEach((key, value) -> {
-                    if (key.equals("resumeDetails")) {
-                        handleResume(value, objectMap);
-                    } else {
-                        objectMap.put(key, value.s());
-                    }
-                });
-                return objectMap;
-            }).collect(Collectors.toList());
-        } catch (Exception exp) {
-            LOGGER.error("Couldn't retrieve referrals: {}", exp.getMessage());
-            throw new RuntimeException(exp);
-        }
+        return performScan(redisKey, scanRequest);
     }
 
     public void handleResume(AttributeValue value, Map<String, Object> objectMap) {
@@ -114,29 +120,67 @@ public class ReferralsRepository {
     }
 
     public List<Map<String, Object>> getAllReferrals() {
-        LOGGER.info("Getting all available referrals");
+        LOGGER.info("Getting all available referrals from cache");
+
+        String redisKey = "referrals:all";
+        try (Jedis jedis = redisConfig.connect()) {
+            if (jedis.exists(redisKey)) {
+                LOGGER.info("Cache hit for all available referrals");
+                String cachedData = jedis.get(redisKey);
+                return objectMapper.readValue(cachedData, new TypeReference<List<Map<String, Object>>>() {});
+            }
+        } catch (Exception exp) {
+            LOGGER.error("Unable to retrieve all available referrals from cache");
+            throw new RuntimeException(exp);
+        }
+
+        LOGGER.info("Cache miss, now retrieving available referrals from database");
 
         ScanRequest scanRequest = ScanRequest.builder().tableName(REFERRALS).build();
 
+        return performScan(redisKey, scanRequest);
+    }
+
+    private List<Map<String, Object>> performScan(String redisKey, ScanRequest scanRequest) {
         try {
             ScanResponse scanResponse = client.scan(scanRequest);
+
             List<Map<String, AttributeValue>> items = scanResponse.items();
+            List<Map<String, Object>> mapList = getMapList(items);
+            cacheReferrals(mapList, redisKey); //cache the referrals for easier retrieval in future requestss
 
-            return items.stream().map(item -> {
-                Map<String, Object> objectMap = new HashMap<>();
+            return mapList;
 
-                item.forEach((key, value) -> {
-                    if (key.equals("resumeDetails")) {
-                        handleResume(value, objectMap);
-                    } else {
-                        objectMap.put(key, value.s());
-                    }
-                });
-                return objectMap;
-            }).collect(Collectors.toList());
         } catch (Exception exp) {
             LOGGER.error("Couldn't retrieve referrals: {}", exp.getMessage());
             throw new RuntimeException(exp);
+        }
+    }
+
+    private List<Map<String, Object>> getMapList(List<Map<String, AttributeValue>> items) {
+        return items.stream().map(item -> {
+            Map<String, Object> objectMap = new HashMap<>();
+
+            item.forEach((key, value) -> {
+                if (key.equals("resumeDetails")) {
+                    handleResume(value, objectMap);
+                } else {
+                    objectMap.put(key, value.s());
+                }
+            });
+            return objectMap;
+        }).collect(Collectors.toList());
+    }
+
+    public void cacheReferrals(List<Map<String, Object>> referralsMapList, String redisKey) {
+        LOGGER.info("Adding referrals to cache");
+
+        try (Jedis jedis = redisConfig.connect()) {
+            String jsonData = objectMapper.writeValueAsString(referralsMapList);
+            int CACHE_TTL_SECONDS = 3600;
+            jedis.setex(redisKey, CACHE_TTL_SECONDS, jsonData);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
         }
     }
 }
