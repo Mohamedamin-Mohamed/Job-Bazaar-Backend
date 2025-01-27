@@ -1,8 +1,11 @@
 package com.JobBazaar.Backend.Controllers;
 
-import com.JobBazaar.Backend.Dto.JobPostRequest;
+import com.JobBazaar.Backend.Dto.Job;
 import com.JobBazaar.Backend.Dto.UpdateJobStatusRequest;
+import com.JobBazaar.Backend.Dto.UserDto;
+import com.JobBazaar.Backend.Services.EmailService;
 import com.JobBazaar.Backend.Services.JobService;
+import com.JobBazaar.Backend.Services.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -19,23 +23,33 @@ public class Jobs {
     private static final Logger LOGGER = LoggerFactory.getLogger(Jobs.class);
 
     private final JobService jobService;
+    private final UserService userService;
+    private final EmailService emailService;
 
     @Autowired
-    public Jobs(JobService jobService) {
+    public Jobs(JobService jobService, UserService userService, EmailService emailService) {
         this.jobService = jobService;
+        this.userService = userService;
+        this.emailService = emailService;
     }
 
     @PostMapping("/upload")
-    public ResponseEntity<String> createJob(@RequestBody JobPostRequest jobPostRequest) {
+    public ResponseEntity<String> createJob(@RequestBody Job job) throws IOException {
         LOGGER.info("Create job request received");
-
-        boolean jobCreated = jobService.createJob(jobPostRequest);
+        boolean isNewJob = (job.getJobId() == null);
+        boolean jobCreated = jobService.createJob(job);
 
         if (jobCreated) {
-            return new ResponseEntity<>("Job created successfully", HttpStatus.CREATED);
+            UserDto user = userService.getUsersInfo(job.getEmployerEmail());
+
+            String recipientEmail = job.getEmployerEmail();
+            String fullName = user.getFirstName() + " " + user.getLastName();
+
+            emailService.sendJobRelatedEmail(recipientEmail, fullName, user.getRole(), isNewJob, job.getPosition());
+            return new ResponseEntity<>(isNewJob ? "Job created successfully" : "Job updated successfully", HttpStatus.CREATED);
         }
 
-        return new ResponseEntity<>("Couldn't create job", HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(isNewJob ? "Couldn't create job" : "Couldn't update job", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @GetMapping("/")
@@ -80,7 +94,6 @@ public class Jobs {
         LOGGER.info("Received request to get applicants count");
 
         Map<String, Integer> applicantsCount = jobService.countApplicantsByJobIds(jobIds);
-
         if (!applicantsCount.isEmpty()) {
             return ResponseEntity.ok(applicantsCount);
         }
