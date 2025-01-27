@@ -1,6 +1,6 @@
 package com.JobBazaar.Backend.Dto;
 
-public class JobPostRequest {
+public class Job {
     private String employerEmail;
     private String jobId;
     private String position;
