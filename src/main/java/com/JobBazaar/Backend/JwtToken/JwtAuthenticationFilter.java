@@ -13,7 +13,6 @@ import java.util.logging.Logger;
 
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     private final JwtTokenService jwtTokenService;
-    ;
 
     private final Logger LOGGER = Logger.getLogger(JwtAuthenticationFilter.class.getName());
 
