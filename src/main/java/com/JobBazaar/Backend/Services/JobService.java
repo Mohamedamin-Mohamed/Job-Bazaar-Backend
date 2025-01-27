@@ -1,7 +1,7 @@
 package com.JobBazaar.Backend.Services;
 
 import com.JobBazaar.Backend.Controllers.Login;
-import com.JobBazaar.Backend.Dto.JobPostRequest;
+import com.JobBazaar.Backend.Dto.Job;
 import com.JobBazaar.Backend.Dto.UpdateJobStatusRequest;
 import com.JobBazaar.Backend.Repositories.JobRepository;
 import com.JobBazaar.Backend.Utils.ShortUUIDGenerator;
@@ -25,13 +25,13 @@ public class JobService {
         this.shortUUIDGenerator = shortUUIDGenerator;
     }
 
-    public boolean createJob(JobPostRequest jobPostRequest) {
+    public boolean createJob(Job job) {
         try {
-            if (jobPostRequest.getJobId() == null) {
+            if (job.getJobId() == null) {
                 String jobId = shortUUIDGenerator.generateShortUUID();
-                jobPostRequest.setJobId(jobId);
+                job.setJobId(jobId);
             }
-            return jobRepository.saveJob(jobPostRequest);
+            return jobRepository.saveJob(job);
         } catch (Exception exp) {
             LOGGER.error("Could not create job", exp);
             return false;
