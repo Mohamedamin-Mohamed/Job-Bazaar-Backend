@@ -4,6 +4,7 @@ import com.JobBazaar.Backend.Dto.PasswordResetDto;
 import com.JobBazaar.Backend.Dto.RequestDto;
 import com.JobBazaar.Backend.Dto.UserDto;
 import com.JobBazaar.Backend.JwtToken.JwtTokenService;
+import com.JobBazaar.Backend.Services.EmailService;
 import com.JobBazaar.Backend.Services.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,17 +25,18 @@ public class Login {
 
     private final UserService userService;
     private final JwtTokenService jwtToken;
+    private final EmailService emailService;
 
     @Autowired
-    public Login(UserService userService, JwtTokenService jwtToken) {
+    public Login(UserService userService, JwtTokenService jwtToken, EmailService emailService) {
         this.userService = userService;
         this.jwtToken = jwtToken;
+        this.emailService = emailService;
     }
 
     @PostMapping("/")
     public ResponseEntity<Object> checkCredentials(@RequestBody RequestDto loginRequest) {
         LOGGER.info("Login request received");
-
         //first check if there is a user with the above email
         boolean userExists = userService.userExists(loginRequest);
 
@@ -55,7 +58,7 @@ public class Login {
             return new ResponseEntity<>("Incorrect Password", HttpStatus.UNAUTHORIZED);
         }
         //user doesn't exist so return incorrect email
-        return new ResponseEntity<>("Incorrect Email Address", HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>("Email not found", HttpStatus.NOT_FOUND);
     }
 
     @GetMapping("/{email}/email-lookup/")
@@ -68,19 +71,22 @@ public class Login {
         requestDto.setPass("");
         boolean userExists = userService.userExists(requestDto);
         if (!userExists) {
-            return new ResponseEntity<>("We couldn't find your email, please make an account first!", HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("Email not found. Please create an account.", HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>("Email address found, reset your password", HttpStatus.OK);
+        return new ResponseEntity<>("Email address found. Reset your password.", HttpStatus.OK);
     }
 
     @PostMapping("/password-reset/")
-    public ResponseEntity<String> resetPassword(@RequestBody PasswordResetDto passwordResetDto) {
+    public ResponseEntity<String> resetPassword(@RequestBody PasswordResetDto passwordResetDto) throws IOException {
         LOGGER.info("Password Reset request received");
 
         boolean passwordChanged = userService.updateUser(passwordResetDto);
         if (passwordChanged) {
-            return new ResponseEntity<>("Password Reset Successful, redirecting you to Login", HttpStatus.OK);
+            String recipientEmail = passwordResetDto.getEmail();
+            String fullName = passwordResetDto.getFirstName() + " " + passwordResetDto.getLastName();
+            emailService.sendWelcomeOrResetEmail(recipientEmail, fullName, "forgot_password");
+            return new ResponseEntity<>("Password reset. Redirecting.", HttpStatus.OK);
         }
-        return new ResponseEntity<>("User Account not found, Sign up", HttpStatus.UNAUTHORIZED);
+        return new ResponseEntity<>("Account not found. Sign up.", HttpStatus.UNAUTHORIZED);
     }
 }
