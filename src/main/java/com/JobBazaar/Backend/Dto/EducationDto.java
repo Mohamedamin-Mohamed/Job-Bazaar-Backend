@@ -5,7 +5,6 @@ public class EducationDto {
     private String school;
     private String major;
     private String degree;
-    private String description;
     private String startDate;
     private String endDate;
 
@@ -33,9 +32,6 @@ public class EducationDto {
         this.degree = degree;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
 
     public void setStartDate(String startDate) {
         this.startDate = startDate;
@@ -51,10 +47,6 @@ public class EducationDto {
 
     public String getDegree() {
         return degree;
-    }
-
-    public String getDescription() {
-        return description;
     }
 
     public String getStartDate() {
