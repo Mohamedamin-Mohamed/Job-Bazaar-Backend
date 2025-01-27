@@ -81,10 +81,9 @@ public class EducationRepository {
         key.put("email", AttributeValue.builder().s(email).build());
 
         GetItemRequest getItemRequest = GetItemRequest.builder().key(key).tableName(EDUCATION).build();
-
         try {
             GetItemResponse getItemResponse = client.getItem(getItemRequest);
-            LOGGER.info("Retrieved education: {}", getItemResponse.toString());
+            LOGGER.info("Retrieved education for {}", email);
             return getEducationDto(getItemResponse);
         } catch (DynamoDbException exp) {
             LOGGER.error("Education couldn't be retrieved: {}", exp.getMessage());
@@ -114,9 +113,6 @@ public class EducationRepository {
                         break;
                     case "degree":
                         educationDto.setDegree(value);
-                        break;
-                    case "description":
-                        educationDto.setDescription(value);
                         break;
                     case "startDate":
                         educationDto.setStartDate(value);
