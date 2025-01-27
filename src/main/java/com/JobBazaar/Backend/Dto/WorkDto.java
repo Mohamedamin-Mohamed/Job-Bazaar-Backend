@@ -4,7 +4,6 @@ public class WorkDto {
     private String email;
     private String title;
     private String Company;
-    private String description;
     private String location;
     private String startDate;
     private String endDate;
@@ -17,9 +16,6 @@ public class WorkDto {
         return Company;
     }
 
-    public String getDescription() {
-        return description;
-    }
 
     public String getLocation() {
         return location;
@@ -47,10 +43,6 @@ public class WorkDto {
 
     public void setCompany(String company) {
         Company = company;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     public void setLocation(String location) {
