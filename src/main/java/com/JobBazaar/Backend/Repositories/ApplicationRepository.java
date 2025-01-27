@@ -3,10 +3,15 @@ package com.JobBazaar.Backend.Repositories;
 import com.JobBazaar.Backend.Dto.ApplicationDto;
 import com.JobBazaar.Backend.Dto.UpdateApplicationStatusRequest;
 import com.JobBazaar.Backend.Mappers.DynamoDbItemMapper;
+import com.JobBazaar.Backend.config.RedisConfig;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import redis.clients.jedis.Jedis;
 import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.*;
@@ -29,19 +34,22 @@ public class ApplicationRepository {
     private final DynamoDbClient client;
     private final DynamoDbItemMapper dynamoDbItemMapper;
     private final S3Client s3Client;
+    private final RedisConfig redisConfig;
+    private final ObjectMapper objectMapper = new ObjectMapper();
     private static final String APPLICATIONS = "Applications";
+    private final int CACHE_TTL_SECONDS = 3600;
 
     @Autowired
-    public ApplicationRepository(DynamoDbClient client, DynamoDbItemMapper dynamoDbItemMapper, S3Client s3Client) {
+    public ApplicationRepository(DynamoDbClient client, DynamoDbItemMapper dynamoDbItemMapper, S3Client s3Client, RedisConfig redisConfig) {
         this.client = client;
         this.dynamoDbItemMapper = dynamoDbItemMapper;
         this.s3Client = s3Client;
+        this.redisConfig = redisConfig;
     }
 
     public boolean addApplication(ApplicationDto application, Map<String, Map<String, String>> fileUploadedToS3Info) {
         LOGGER.info("Adding application: {}", application);
         Map<String, AttributeValue> item = dynamoDbItemMapper.toDynamoDbItemMap(application, fileUploadedToS3Info);
-        System.out.println(item);
         PutItemRequest putItemRequest = PutItemRequest.builder().tableName(APPLICATIONS).item(item).build();
 
         try {
@@ -55,8 +63,22 @@ public class ApplicationRepository {
     }
 
     public List<Map<String, String>> getJobsAppliedTo(String applicantEmail) {
-        LOGGER.info("Retrieving all jobs applied by {}", applicantEmail);
+        LOGGER.info("Retrieving all jobs applied by {} from cache", applicantEmail);
 
+        String redisKey = "appliedJobs:by:" + applicantEmail;
+        try (Jedis jedis = redisConfig.connect()) {
+            if (jedis.exists(redisKey)) {
+                LOGGER.info("Cache hit for applied jobs by {}", applicantEmail);
+                String cachedData = jedis.get(redisKey);
+                return objectMapper.readValue(cachedData, new TypeReference<>() {
+                });
+            }
+        } catch (Exception exp) {
+            LOGGER.error("Unable to retrieve jobs applied by {} from cache", applicantEmail);
+            throw new RuntimeException(exp);
+        }
+
+        LOGGER.info("Cache miss, retrieving jobs applied by {} from database", applicantEmail);
         String keyConditionExpression = "applicantEmail=:appEmail";
         String attributeValue = ":appEmail";
 
@@ -72,15 +94,27 @@ public class ApplicationRepository {
 
             if (queryResponse != null && !queryResponse.items().isEmpty()) {
                 LOGGER.info("Retrieved all jobs applied by {}", applicantEmail);
-                return dynamoDbItemMapper.toDynamoDbItemMap(queryResponse.items());
+                List<Map<String, String>> appliedJobs = dynamoDbItemMapper.toDynamoDbItemMap(queryResponse.items());
+                cacheJobs(appliedJobs, redisKey);
+                return appliedJobs;
             }
-            return new ArrayList<>();
         } catch (DynamoDbException exp) {
             LOGGER.error("Couldn't retrieve jobs applied by {}", applicantEmail);
             throw exp;
         } catch (Exception exp) {
             LOGGER.error("Unknown error occurred {}", exp.toString());
             throw exp;
+        }
+        return new ArrayList<>();
+    }
+
+    private void cacheJobs(List<Map<String, String>> jobs, String redisKey) {
+        try (Jedis jedis = redisConfig.connect()) {
+            String jsonData = objectMapper.writeValueAsString(jobs);
+            jedis.setex(redisKey, CACHE_TTL_SECONDS, jsonData);
+            LOGGER.info("Cached available jobs in Redis with key: {}", redisKey);
+        } catch (Exception e) {
+            LOGGER.error("Error caching available jobs in Redis: {}", e.getMessage());
         }
     }
 
@@ -107,6 +141,7 @@ public class ApplicationRepository {
 
     public boolean deleteApplication(String applicantEmail, String jobId) {
         LOGGER.info("Deleting {} application with id {}:", applicantEmail, jobId);
+
         Map<String, AttributeValue> key = new HashMap<>();
         key.put("applicantEmail", AttributeValue.builder().s(applicantEmail).build());
         key.put("jobId", AttributeValue.builder().s(jobId).build());
@@ -126,7 +161,23 @@ public class ApplicationRepository {
     }
 
     public List<Map<String, Object>> getJobsAppliedToUsers(String jobId) {
-        LOGGER.info("Retrieving all jobs applied to {}", jobId);
+        LOGGER.info("Retrieving all applicants applied to {} from cache", jobId);
+
+        String redisKey = "appliedTo:jobId:" + jobId;
+        try (Jedis jedis = redisConfig.connect()) {
+            if (jedis.exists(redisKey)) {
+                LOGGER.info("Cache hit for applicants that applied to job with job id : {}", jobId);
+                String cachedResult = jedis.get(redisKey);
+                return objectMapper.readValue(cachedResult, new TypeReference<>() {
+                });
+            }
+        } catch (Exception exp) {
+            LOGGER.error("Unable to retrieve all applicant that applied to {} from cache", jobId);
+            throw new RuntimeException(exp);
+        }
+
+        LOGGER.info("Cache miss, retrieving all applicants that applied to job with job id {} from database", jobId);
+
         Map<String, AttributeValue> expressionValues = new HashMap<>();
         expressionValues.put(":jobId", AttributeValue.builder().s(jobId).build());
 
@@ -135,26 +186,44 @@ public class ApplicationRepository {
 
         try {
             ScanResponse scanResponse = client.scan(scanRequest);
+
             List<Map<String, AttributeValue>> items = scanResponse.items();
+            List<Map<String, Object>> mapList = streamAppliedTo(items);
+            jobApplicantsCacheList(mapList, redisKey);
 
-            return items.stream().map(item -> {
-                Map<String, Object> stringObjectMap = new HashMap<>();
-
-                item.forEach((key, value) -> {
-                    if (key.equals("resumeDetails") || key.equals("additionalDocDetails")) {
-                        handleDocumentDetails(key, value, stringObjectMap);
-                    } else {
-                        String stringValue = value != null && !value.s().isEmpty() ? value.s() : "";
-                        stringObjectMap.put(key, stringValue);
-                    }
-                });
-                return stringObjectMap;
-            }).collect(Collectors.toList());
+            return mapList;
 
         } catch (Exception e) {
             LOGGER.error("Error retrieving jobs applied to users: {}", e.getMessage());
             throw new RuntimeException(e);
         }
+    }
+
+    public void jobApplicantsCacheList(List<Map<String, Object>> mapList, String redisKey) {
+        LOGGER.info("Caching job applicants");
+
+        try (Jedis jedis = redisConfig.connect()) {
+            String jsonData = objectMapper.writeValueAsString(mapList);
+            jedis.setex(redisKey, CACHE_TTL_SECONDS, jsonData);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public List<Map<String, Object>> streamAppliedTo(List<Map<String, AttributeValue>> items) {
+        return items.stream().map(item -> {
+            Map<String, Object> stringObjectMap = new HashMap<>();
+
+            item.forEach((key, value) -> {
+                if (key.equals("resumeDetails") || key.equals("additionalDocDetails")) {
+                    handleDocumentDetails(key, value, stringObjectMap);
+                } else {
+                    String stringValue = value != null && !value.s().isEmpty() ? value.s() : "";
+                    stringObjectMap.put(key, stringValue);
+                }
+            });
+            return stringObjectMap;
+        }).collect(Collectors.toList());
     }
 
     public void handleDocumentDetails(String key, AttributeValue attributeValue, Map<String, Object> map) {
