@@ -47,10 +47,10 @@ public class WorkRepository {
         key = dynamoDbItemMapper.toDynamoDbItemMap(workDto);
 
         UpdateItemRequest updateItemRequest = UpdateItemRequest.builder().tableName(WORK).key(key).build();
-        LOGGER.info("Updating work experience" + updateItemRequest.toString());
+        LOGGER.info("Updating work experience{}", updateItemRequest.toString());
         try {
             UpdateItemResponse updateItemResponse = client.updateItem(updateItemRequest);
-            LOGGER.info("Updated work experience: " + updateItemResponse.toString());
+            LOGGER.info("Updated work experience: {}", updateItemResponse.toString());
             return updateItemResponse.sdkHttpResponse().isSuccessful();
         } catch (DynamoDbException exp) {
             LOGGER.error("Work experience couldn't be updated {}", exp.getMessage());
