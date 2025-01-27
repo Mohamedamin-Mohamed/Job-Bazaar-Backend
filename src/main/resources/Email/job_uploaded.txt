@@ -1,0 +1,10 @@
+Subject: Job Posting Confirmation: {position}
+
+Dear {},
+
+We’re pleased to confirm that your job posting for {} has been successfully published. Applicants can now view and apply for this position. You will receive applications directly and can manage them as you see fit.
+
+If you need assistance or have any questions, please don’t hesitate to contact us.
+
+Best regards,
+Job Bazaar Team
