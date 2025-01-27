@@ -1,20 +1,8 @@
 Subject: Welcome to Job Bazaar! Your Job Search Starts Here
 
-
 Dear {},
 
-Welcome to Job Bazaar!
-
-We're excited to have you join our community of job seekers and employers. Whether you're looking for the perfect job or searching for top talent, Job Bazaar is here to help you every step of the way.
-
-Here’s what you can do next:
-- **Explore Job Listings:** Start browsing the latest job opportunities tailored to your skills and interests.
-- **Apply with Ease:** Submit your application directly through our platform with just a few clicks.
-- **Track Your Applications:** Stay updated on the status of your applications in real-time.
-
-We’re committed to helping you achieve your career goals and connecting you with the right opportunities. If you have any questions or need assistance, our support team is here to help.
-
-Thank you for choosing Job Bazaar. We’re thrilled to be a part of your job search journey!
+Welcome to Job Bazaar! Thank you for choosing Job Bazaar. We’re thrilled to be a part of your job search journey!
 
 Best regards,
-The Job Bazaar Team
+Job Bazaar Team
