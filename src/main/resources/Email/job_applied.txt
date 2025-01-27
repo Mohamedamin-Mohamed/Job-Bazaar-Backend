@@ -1,0 +1,10 @@
+Subject: Application Confirmation: {position}
+
+Dear {},
+
+Thank you for submitting your application for {} position. Your application has been received and will be reviewed by the hiring team. If your profile aligns with their needs, they will contact you directly to discuss the next steps.
+
+If you have any questions, feel free to reach out to us.
+
+Best regards,
+Job Bazaar Team

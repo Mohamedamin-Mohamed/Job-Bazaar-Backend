@@ -26,14 +26,12 @@ public class Signup {
     private static final Logger LOGGER = LoggerFactory.getLogger(Login.class);
     private final UserService userService;
     private final SnsService snsService;
-    private final JwtTokenService jwtToken;
     private final EmailService emailService;
 
     @Autowired
     public Signup(UserService userService, SnsService snsService, JwtTokenService jwtToken, EmailService emailService) {
         this.userService = userService;
         this.snsService = snsService;
-        this.jwtToken = jwtToken;
         this.emailService = emailService;
     }
 
@@ -49,17 +47,16 @@ public class Signup {
             response.put("message", message);
             return new ResponseEntity<>(response, HttpStatus.CONFLICT);
         }
-
-        String token = jwtToken.createJwtToken(userDto);
-        String message = "Account created successfully, redirecting you to login";
+        String message = "Account created successfully";
         Map<String, Object> response = new HashMap<>();
-        response.put("token", token);
         response.put("user", userDto);
         response.put("message", message);
 
         //subscribe the user to the topic and send a welcome email
         snsService.addSubscriberTopic(signupRequest, "UserAccountNotifications");
-        emailService.sendWelcomeEmail(signupRequest.getEmail(), signupRequest.getFirstName());
+
+        String recipientName = userDto.getFirstName() + " " + userDto.getLastName();
+        emailService.sendWelcomeOrResetEmail(userDto.getEmail(), recipientName, "welcome_email");
 
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }

@@ -7,6 +7,8 @@ import com.JobBazaar.Backend.Repositories.*;
 import com.JobBazaar.Backend.Services.*;
 import com.JobBazaar.Backend.Utils.PasswordUtils;
 import com.JobBazaar.Backend.Utils.ShortUUIDGenerator;
+import com.JobBazaar.Backend.config.MailjetConfig;
+import com.JobBazaar.Backend.config.RedisConfig;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -55,8 +57,13 @@ public class AppConfig {
     }
 
     @Bean
+    public MailjetConfig mailjetConfig(){
+        return new MailjetConfig();
+    }
+
+    @Bean
     public UserService userService() {
-        return new UserService(userRepository(), snsRepository(), passwordutils());
+        return new UserService(userRepository(), passwordutils());
     }
 
     @Bean
@@ -81,7 +88,7 @@ public class AppConfig {
 
     @Bean
     public UserRepository userRepository() {
-        return new UserRepository(dynamoDbClient(), dynamoDbItemMapper(), passwordutils(), buildSesV2Client());
+        return new UserRepository(dynamoDbClient(), dynamoDbItemMapper(), passwordutils(), redisConfig());
     }
 
     @Bean
@@ -92,6 +99,11 @@ public class AppConfig {
     @Bean
     public EducationRepository educationRepository() {
         return new EducationRepository(dynamoDbClient(), dynamoDbItemMapper());
+    }
+
+    @Bean
+    public RedisConfig redisConfig(){
+        return new RedisConfig();
     }
 
     @Bean
@@ -106,7 +118,7 @@ public class AppConfig {
 
     @Bean
     public JobRepository jobRepository() {
-        return new JobRepository(dynamoDbClient(), dynamoDbItemMapper());
+        return new JobRepository(dynamoDbClient(), dynamoDbItemMapper(), redisConfig());
     }
 
     @Bean
@@ -116,7 +128,7 @@ public class AppConfig {
 
     @Bean
     public ApplicationRepository applicationRepository() {
-        return new ApplicationRepository(dynamoDbClient(), dynamoDbItemMapper(), s3Client());
+        return new ApplicationRepository(dynamoDbClient(), dynamoDbItemMapper(), s3Client(), redisConfig());
     }
 
     @Bean
@@ -156,7 +168,7 @@ public class AppConfig {
 
     @Bean
     public ImageSearchService imageSearchService() {
-        return new ImageSearchService(restTemplate());
+        return new ImageSearchService(restTemplate(), redisConfig());
     }
 
     @Bean
@@ -178,6 +190,7 @@ public class AppConfig {
                             .requestMatchers("/").permitAll()
                             .requestMatchers("/accounts/**").permitAll()
                             .requestMatchers("/api/**").permitAll()
+                            .requestMatchers("/test").permitAll()
                             .anyRequest().authenticated();
                 })
                 .csrf(AbstractHttpConfigurer::disable)
@@ -189,7 +202,7 @@ public class AppConfig {
 
     @Bean
     public EmailService emailService() {
-        return new EmailService();
+        return new EmailService(mailjetConfig());
     }
 
     @Bean
@@ -209,7 +222,7 @@ public class AppConfig {
 
     @Bean
     ReferralsRepository referralsRepository() {
-        return new ReferralsRepository(dynamoDbClient(), dynamoDbItemMapper(), s3Client());
+        return new ReferralsRepository(dynamoDbClient(), dynamoDbItemMapper(), s3Client(), redisConfig());
     }
 
     @Bean

@@ -3,6 +3,7 @@ package com.JobBazaar.Backend.Controllers;
 import com.JobBazaar.Backend.Dto.ApplicationDto;
 import com.JobBazaar.Backend.Dto.UpdateApplicationStatusRequest;
 import com.JobBazaar.Backend.Services.ApplicationService;
+import com.JobBazaar.Backend.Services.EmailService;
 import com.JobBazaar.Backend.Services.FilesUploadService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,11 +26,13 @@ public class Application {
 
     private final ApplicationService applicationService;
     private final FilesUploadService filesUploadService;
+    private final EmailService emailService;
 
     @Autowired
-    public Application(ApplicationService applicationService, FilesUploadService filesUploadService) {
+    public Application(ApplicationService applicationService, FilesUploadService filesUploadService, EmailService emailService) {
         this.applicationService = applicationService;
         this.filesUploadService = filesUploadService;
+        this.emailService = emailService;
     }
 
     @PostMapping("/add")
@@ -55,6 +58,11 @@ public class Application {
 
 
         if (applicationAdded) {
+            String recipientEmail = applicationDto.getApplicantEmail();
+            String fullName = applicationDto.getFirstName() + " " + applicationDto.getLastName();
+            String position = applicationDto.getPosition();
+
+            emailService.sendJobRelatedEmail(recipientEmail, fullName, "Applicant", false, position);
             return new ResponseEntity<>("Application added successfully", HttpStatus.CREATED);
         }
 
@@ -90,7 +98,6 @@ public class Application {
         LOGGER.info("Received request to retrieve jobs applied to users by {}", jobId);
 
         List<Map<String, Object>> jobsAppliedToUsers = applicationService.getJobsAppliedToUsers(jobId);
-
         if (!jobsAppliedToUsers.isEmpty()) {
             ResponseEntity.ok(jobsAppliedToUsers);
         }

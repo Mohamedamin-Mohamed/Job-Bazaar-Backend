@@ -4,6 +4,7 @@ import com.JobBazaar.Backend.Dto.PasswordResetDto;
 import com.JobBazaar.Backend.Dto.RequestDto;
 import com.JobBazaar.Backend.Dto.UserDto;
 import com.JobBazaar.Backend.JwtToken.JwtTokenService;
+import com.JobBazaar.Backend.Services.EmailService;
 import com.JobBazaar.Backend.Services.UserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
 
+import java.io.IOException;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -27,6 +29,9 @@ class LoginTest {
 
     @Mock
     JwtTokenService jwtTokenService;
+
+    @Mock
+    EmailService emailService;
 
     @InjectMocks
     Login login;
@@ -81,7 +86,7 @@ class LoginTest {
 
         assertNotNull(response);
         assertEquals(404, response.getStatusCode().value());
-        assertEquals("Incorrect Email Address", response.getBody());
+        assertEquals("Email not found", response.getBody());
     }
 
     @Test
@@ -110,7 +115,7 @@ class LoginTest {
 
         assertNotNull(response);
         assertEquals(200, response.getStatusCode().value());
-        assertEquals("Email address found, reset your password", response.getBody());
+        assertEquals("Email address found. Reset your password.", response.getBody());
     }
 
     @Test
@@ -123,11 +128,11 @@ class LoginTest {
 
         assertNotNull(response);
         assertEquals(404, response.getStatusCode().value());
-        assertEquals("We couldn't find your email, please make an account first!", response.getBody());
+        assertEquals("Email not found. Please create an account.", response.getBody());
     }
 
     @Test
-    void resetPasswordSuccessful() {
+    void resetPasswordSuccessful() throws IOException {
         PasswordResetDto passwordResetDto = new PasswordResetDto();
         passwordResetDto.setFirstName("Test");
         passwordResetDto.setLastName("Com");
@@ -145,7 +150,7 @@ class LoginTest {
     }
 
     @Test
-    void resetPasswordUnsuccessful() {
+    void resetPasswordUnsuccessful() throws IOException {
         PasswordResetDto passwordResetDto = new PasswordResetDto();
         passwordResetDto.setFirstName("Test");
         passwordResetDto.setLastName("Com");

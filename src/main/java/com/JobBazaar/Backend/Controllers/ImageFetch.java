@@ -22,7 +22,8 @@ public class ImageFetch {
     String cseKey;
 
     private final ImageSearchService imageSearchService;
-    private Logger LOGGER = Logger.getLogger(ImageFetch.class.getName());
+    private final Logger LOGGER = Logger.getLogger(ImageFetch.class.getName());
+
     public ImageFetch(ImageSearchService imageSearchService) {
         this.imageSearchService = imageSearchService;
     }
@@ -31,7 +32,7 @@ public class ImageFetch {
     public ResponseEntity<ImageFetchResponse> fetchImage(@RequestParam String query) {
         LOGGER.info("Received request to search image based on the query");
         ImageFetchResponse imageFetchResponse = imageSearchService.searchImage(query);
-        if(imageFetchResponse.getData() != null) {
+        if (imageFetchResponse.getData() != null) {
             return ResponseEntity.ok(imageFetchResponse);
         }
         return ResponseEntity.notFound().build();

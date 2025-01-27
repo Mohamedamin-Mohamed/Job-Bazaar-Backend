@@ -56,7 +56,6 @@ public class SnsRepository {
                 LOGGER.info(subscribeResponse.toString());
                 if (subscribeResponse.sdkHttpResponse().isSuccessful()) {
                     LOGGER.info("Subscriber creation successful");
-                    snsClient.close();
                 } else {
                     LOGGER.warning("Subscriber creation failed");
                     throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, subscribeResponse.sdkHttpResponse().statusText().get());

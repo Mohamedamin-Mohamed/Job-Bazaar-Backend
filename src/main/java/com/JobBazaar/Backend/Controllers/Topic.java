@@ -37,7 +37,6 @@ public class Topic {
         } else {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, topicResponse.sdkHttpResponse().statusText().orElse("Cannot create topic " + topic));
         }
-        snsClient.close();
         return "Topic ARN: " + topicResponse.topicArn();
     }
 }

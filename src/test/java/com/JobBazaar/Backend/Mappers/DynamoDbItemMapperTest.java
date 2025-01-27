@@ -80,7 +80,7 @@ class DynamoDbItemMapperTest {
 
     @Test
     void toDynamoDbItemJobPost() {
-        JobPostRequest postRequest = new JobPostRequest();
+        Job postRequest = new Job();
         postRequest.setEmployerEmail("test@test.com");
         postRequest.setJobFunction("Marketing");
         postRequest.setPostedDate("01-01-2024");
