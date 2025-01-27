@@ -7,16 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
-import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
-import software.amazon.awssdk.services.dynamodb.model.DeleteItemRequest;
-import software.amazon.awssdk.services.dynamodb.model.DeleteItemResponse;
-import software.amazon.awssdk.services.dynamodb.model.DynamoDbException;
-import software.amazon.awssdk.services.dynamodb.model.GetItemRequest;
-import software.amazon.awssdk.services.dynamodb.model.GetItemResponse;
-import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
-import software.amazon.awssdk.services.dynamodb.model.PutItemResponse;
-import software.amazon.awssdk.services.dynamodb.model.UpdateItemRequest;
-import software.amazon.awssdk.services.dynamodb.model.UpdateItemResponse;
+import software.amazon.awssdk.services.dynamodb.model.*;
 
 import java.text.ParseException;
 import java.util.HashMap;
@@ -42,7 +33,7 @@ public class WorkRepository {
         PutItemRequest putItemRequest = PutItemRequest.builder().tableName(WORK).item(item).build();
         try {
             PutItemResponse putItemResponse = client.putItem(putItemRequest);
-            LOGGER.info("Added new work experience: " + putItemResponse.toString());
+            LOGGER.info("Added new work experience for {}", workDto.getEmail());
             return putItemResponse.sdkHttpResponse().isSuccessful();
         } catch (DynamoDbException exp) {
             LOGGER.error("Work experience couldn't be created {}", exp.getMessage());
@@ -51,7 +42,7 @@ public class WorkRepository {
     }
 
     public boolean updateWorkExperience(WorkDto workDto) throws ParseException, JsonProcessingException {
-        LOGGER.info("Updating education");
+        LOGGER.info("Updating work experience");
         Map<String, AttributeValue> key;
         key = dynamoDbItemMapper.toDynamoDbItemMap(workDto);
 
@@ -119,9 +110,6 @@ public class WorkRepository {
                         break;
                     case "location":
                         workDto.setLocation(value);
-                        break;
-                    case "description":
-                        workDto.setDescription(value);
                         break;
                     case "startDate":
                         workDto.setStartDate(value);
