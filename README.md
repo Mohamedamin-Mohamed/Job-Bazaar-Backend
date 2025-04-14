@@ -10,6 +10,7 @@ AWS DynamoDB: Used as the primary database for storing job-related data.
 AWS S3: For storing user resumes and additional documents securely.  
 AWS SNS: Simple Notification Service (SNS) for subscribing users to a topic for updates when they sign up.  
 AWS SDK: To integrate with AWS services such as S3, SNS, and DynamoDB.  
+AWS EC2: To host the backend application
 
 ## Architecture
 This project follows the Controller-Service-Repository design pattern for separating concerns:
