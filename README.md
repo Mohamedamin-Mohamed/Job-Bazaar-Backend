@@ -1,5 +1,5 @@
 # Job-Bazaar-Backend
-This repository contains the backend code for the Job Bazaar application. It is built using Spring Boot and Java, with the application hosted on AWS. The backend handles job postings, applications, referrals, and user management while integrating 
+This repository contains the backend code for the Job Bazaar application. It is built using Java with the Spring Boot framework, with the application hosted on AWS. The backend handles job postings, applications, referrals, and user management while integrating 
 with various AWS services such as DynamoDB, S3, and SNS.
 
 ## Technologies Used
